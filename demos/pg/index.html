@@ -1,0 +1,45 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Foxie's Playground</title>
+	<script src="../common/curl.js"></script>
+	<script>
+	curl.config({
+		packages: [{
+			name: 'Foxie',
+			location: '../../scripts/js/lib',
+			main: 'Foxie'
+		}]
+	});
+	</script>
+	<style>
+		body {
+			background: #313131;
+		}
+		#ball {
+			width: 50px;
+			height: 50px;
+			background: #FFF;
+			position: absolute;
+			border-radius: 50%;
+		}
+	</style>
+</head>
+<body>
+	<div id="ball"></div>
+	<script>
+		curl('Foxie', function(Foxie){
+			b = new Foxie(document.getElementById('ball'));
+			b
+			.moveZ(1)
+			.trans(200)
+			.everyAndNow(400)
+			.moveX(10)
+
+			// b.wait(2000).trans(4000);
+
+			// b.onClick().moveY(200);
+		});
+	</script>
+</body>
+</html>
