@@ -30,7 +30,6 @@ define [
 
 		return window.webkitCancelAnimationFrame if window.webkitCancelAnimationFrame
 
-
 	timing =
 
 		getTime: getTime

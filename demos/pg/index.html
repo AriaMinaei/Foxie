@@ -16,7 +16,7 @@
 		body {
 			background: #313131;
 		}
-		#ball {
+		.ball {
 			width: 50px;
 			height: 50px;
 			background: #FFF;
@@ -28,17 +28,70 @@
 <body>
 	<div id="ball"></div>
 	<script>
+		wait = function(t, f){
+			return setTimeout(f, t);
+		};
+
+
+
 		curl('Foxie', function(Foxie){
-			b = new Foxie(document.getElementById('ball'));
-			b
-			.moveZ(1)
-			.trans(200)
-			.everyAndNow(400)
-			.moveX(10)
 
-			// b.wait(2000).trans(4000);
+			getNewEl = function(){
+				node = document.createElement('div')
+				node.classList.add('ball')
+				document.body.appendChild(node);
+				return new Foxie(node);
+			}
+			els = []
+			for (i = 0; i != 60; i++) {
+				el = getNewEl()
+				el.i = i;
+				els.push(el);
+			}
 
-			// b.onClick().moveY(200);
+			t = 300;
+
+			bringIn = function(){
+				for (i = 0; i < els.length; i++) {
+					bringElIn(els[i]);
+				}
+			};
+
+			takeOut = function(){
+				for (i = 0; i < els.length; i++) {
+					takeElOut(els[i]);
+				}
+			};
+
+			bringElIn = function(el){
+				el
+				.noTrans()
+				.setOpacity(0)
+				.trans(t)
+				.moveXTo(Math.random() * 600)
+				.moveYTo(el.i * 60 + 5)
+				.setOpacity(1)
+			};
+
+			takeElOut = function(el){
+				el
+				.noTrans()
+				.setOpacity(1)
+				.moveXTo(0)
+				.moveYTo(el.i * 60)
+			}
+
+			bringIn();
+
+			document.addEventListener('keydown', function(){
+				if (event.keyCode == 37) {
+					takeOut();
+				} else if (event.keyCode == 39) {
+					bringIn();
+				}
+			})
+
+
 		});
 	</script>
 </body>

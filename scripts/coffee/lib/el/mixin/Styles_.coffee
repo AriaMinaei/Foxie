@@ -106,6 +106,8 @@ define [
 
 		enableTransition: (duration) ->
 
+			# console.log 'enable'
+
 			@_styleInterface = @_transitioner
 
 			@_transitioner.enable duration
