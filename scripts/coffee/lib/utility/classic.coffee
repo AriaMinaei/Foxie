@@ -1,73 +1,69 @@
-define ->
+module.exports = classic = {}
 
-	classic = {}
+classic.mix = (mixins..., classReference) ->
 
-	classic.mix = (mixins..., classReference) ->
+	classProto = classReference::
 
-		classProto = classReference::
+	classReference.__mixinCloners = []
 
-		classReference.__mixinCloners = []
+	classReference.__applyClonersFor = (instance, args = null) ->
 
-		classReference.__applyClonersFor = (instance, args = null) ->
+		for cloner in classReference.__mixinCloners
 
-			for cloner in classReference.__mixinCloners
+			cloner.apply instance, args
 
-				cloner.apply instance, args
+		return
 
-			return
+	classReference.__mixinInitializers = []
 
-		classReference.__mixinInitializers = []
+	classReference.__initMixinsFor = (instance, args = null) ->
 
-		classReference.__initMixinsFor = (instance, args = null) ->
+		for initializer in classReference.__mixinInitializers
 
-			for initializer in classReference.__mixinInitializers
+			initializer.apply instance, args
 
-				initializer.apply instance, args
+		return
 
-			return
+	classReference.__mixinQuitters = []
 
-		classReference.__mixinQuitters = []
+	classReference.__applyQuittersFor = (instance, args = null) ->
 
-		classReference.__applyQuittersFor = (instance, args = null) ->
+		for quitter in classReference.__mixinQuitters
 
-			for quitter in classReference.__mixinQuitters
+			quitter.apply instance, args
 
-				quitter.apply instance, args
+		return
 
-			return
+	for mixin in mixins
 
-		for mixin in mixins
+		unless mixin.constructor instanceof Function
 
-			unless mixin.constructor instanceof Function
+			throw Error "Mixin should be a function"
 
-				throw Error "Mixin should be a function"
+		for member of mixin::
 
-			for member of mixin::
+			if member.substr(0, 11) is '__initMixin'
 
-				if member.substr(0, 11) is '__initMixin'
+				classReference.__mixinInitializers.push mixin::[member]
 
-					classReference.__mixinInitializers.push mixin::[member]
+				continue
 
-					continue
+			else if member.substr(0, 11) is '__clonerFor'
 
-				else if member.substr(0, 11) is '__clonerFor'
+				classReference.__mixinCloners.push mixin::[member]
 
-					classReference.__mixinCloners.push mixin::[member]
+				continue
 
-					continue
+			else if member.substr(0, 12) is '__quitterFor'
 
-				else if member.substr(0, 12) is '__quitterFor'
+				classReference.__mixinQuitters.push mixin::[member]
 
-					classReference.__mixinQuitters.push mixin::[member]
+				continue
 
-					continue
+			unless Object.getOwnPropertyDescriptor classProto, member
 
-				unless Object.getOwnPropertyDescriptor classProto, member
+				desc = Object.getOwnPropertyDescriptor mixin::, member
 
-					desc = Object.getOwnPropertyDescriptor mixin::, member
+				Object.defineProperty classProto, member, desc
 
-					Object.defineProperty classProto, member, desc
-
-		classReference
-
-	classic
+	classReference

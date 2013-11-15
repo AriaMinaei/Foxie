@@ -1,9 +1,5 @@
-if typeof define isnt 'function' then define = require('amdefine')(module)
+module.exports = brightness =
 
-define ->
+	toCss: (amount) ->
 
-	brightness = 
-
-		toCss: (amount) ->
-
-			"brightness(#{amount})"
+		"brightness(#{amount})"

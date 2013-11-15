@@ -1,123 +1,121 @@
-define [
-	'../../../../visuals/Filter'
-	'../../../../utility/css'
-], (CSSFilter, css) ->
+CSSFilter = require '../../../../visuals/Filter'
+css = require '../../../../utility/css'
 
-	class Filters_
+module.exports = class Filters_
 
-		__initMixinFilters: ->
+	__initMixinFilters: ->
 
-			@_cssFilter = new CSSFilter
+		@_cssFilter = new CSSFilter
 
-			@_shouldUpdateFilters = no
+		@_shouldUpdateFilters = no
 
-		__clonerForFilters: (newStyleSetter) ->
+	__clonerForFilters: (newStyleSetter) ->
 
-			newStyleSetter._shouldUpdateFilters = no
+		newStyleSetter._shouldUpdateFilters = no
 
-			return
+		return
 
-		_updateFilters: ->
+	_updateFilters: ->
 
-			return unless @_shouldUpdateFilters
+		return unless @_shouldUpdateFilters
 
-			@_shouldUpdateFilters = no
+		@_shouldUpdateFilters = no
 
-			do @_actuallyUpdateFilters
+		do @_actuallyUpdateFilters
 
-		_scheduleFiltersUpdate: ->
+	_scheduleFiltersUpdate: ->
 
-			@_shouldUpdateFilters = yes
+		@_shouldUpdateFilters = yes
 
-			do @_scheduleUpdate
+		do @_scheduleUpdate
 
-		_actuallyUpdateFilters: ->
+	_actuallyUpdateFilters: ->
 
-			css.setCssFilter @node, @_cssFilter.toCss()
+		css.setCssFilter @node, @_cssFilter.toCss()
 
-			@
+		@
 
-	ClassPrototype = Filters_.prototype
+ClassPrototype = Filters_.prototype
 
-	for methodName, method of CSSFilter.prototype
+for methodName, method of CSSFilter.prototype
 
-		continue unless method instanceof Function
+	continue unless method instanceof Function
 
-		continue if ClassPrototype[methodName]?
+	continue if ClassPrototype[methodName]?
 
-		continue if methodName[0] is '_'
+	continue if methodName[0] is '_'
 
-		continue if methodName is 'toCss'
+	continue if methodName is 'toCss'
 
-		do ->
+	do ->
 
-			_methodName = methodName
+		_methodName = methodName
 
-			if method.length is 0
+		if method.length is 0
 
-				ClassPrototype[_methodName] =  ->
+			ClassPrototype[_methodName] =  ->
 
-					# This is more performant than method.apply()
-					#
-					# Argument splats won't work here though.
-					@_cssFilter[_methodName]()
+				# This is more performant than method.apply()
+				#
+				# Argument splats won't work here though.
+				@_cssFilter[_methodName]()
 
-					do @_scheduleFiltersUpdate
+				do @_scheduleFiltersUpdate
 
-					@
+				@
 
-			else if method.length is 1
+		else if method.length is 1
 
-				ClassPrototype[_methodName] = (arg0) ->
+			ClassPrototype[_methodName] = (arg0) ->
 
-					@_cssFilter[_methodName] arg0
+				@_cssFilter[_methodName] arg0
 
-					do @_scheduleFiltersUpdate
+				do @_scheduleFiltersUpdate
 
-					@
+				@
 
-			else if method.length is 2
+		else if method.length is 2
 
-				ClassPrototype[_methodName] = (arg0, arg1) ->
+			ClassPrototype[_methodName] = (arg0, arg1) ->
 
-					@_cssFilter[_methodName] arg0, arg1
+				@_cssFilter[_methodName] arg0, arg1
 
-					do @_scheduleFiltersUpdate
+				do @_scheduleFiltersUpdate
 
-					@
+				@
 
-			else if method.length is 3
+		else if method.length is 3
 
-				ClassPrototype[_methodName] = (arg0, arg1, arg2) ->
+			ClassPrototype[_methodName] = (arg0, arg1, arg2) ->
 
-					@_cssFilter[_methodName] arg0, arg1, arg2
+				@_cssFilter[_methodName] arg0, arg1, arg2
 
-					do @_scheduleFiltersUpdate
+				do @_scheduleFiltersUpdate
 
-					@
+				@
 
-			else if method.length is 4
+		else if method.length is 4
 
-				ClassPrototype[_methodName] = (arg0, arg1, arg2, arg3) ->
+			ClassPrototype[_methodName] = (arg0, arg1, arg2, arg3) ->
 
-					@_cssFilter[_methodName] arg0, arg1, arg2, arg3
+				@_cssFilter[_methodName] arg0, arg1, arg2, arg3
 
-					do @_scheduleFiltersUpdate
+				do @_scheduleFiltersUpdate
 
-					@
+				@
 
-			else if method.length is 5
+		else if method.length is 5
 
-				ClassPrototype[_methodName] = (arg0, arg1, arg2, arg3, arg4) ->
+			ClassPrototype[_methodName] = (arg0, arg1, arg2, arg3, arg4) ->
 
-					@_cssFilter[_methodName] arg0, arg1, arg2, arg3, arg4
+				@_cssFilter[_methodName] arg0, arg1, arg2, arg3, arg4
 
-					do @_scheduleFiltersUpdate
+				do @_scheduleFiltersUpdate
 
-					@
+				@
 
-			else
+		else
 
-				throw Error "Methods with more than 5 args are not supported."
+			throw Error "Methods with more than 5 args are not supported."
 
-	Filters_
+Filters_

@@ -1,6 +1,6 @@
-if typeof define isnt 'function' then define = require('amdefine')(module)
+common = require './_common'
 
-define ['./_common'], (common) -> {
+module.exports = array =
 
 	_clone: common._cloneArray.bind common
 
@@ -184,5 +184,3 @@ define ['./_common'], (common) -> {
 		# a[i] = toPut
 
 		null
-
-}

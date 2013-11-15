@@ -1,222 +1,220 @@
-define [
-	'../../../../visuals/TypedMatrix'
-	'../../../../utility/css'
-], (TypedMatrix, css) ->
+TypedMatrix = require '../../../../visuals/TypedMatrix'
+css = require '../../../../utility/css'
 
-	class Transforms_
+module.exports = class Transforms_
 
-		__initMixinTransforms: ->
+	__initMixinTransforms: ->
 
-			@_transformer = new TypedMatrix
+		@_transformer = new TypedMatrix
 
-			@_origin =
+		@_origin =
 
-				x: null
+			x: null
 
-				y: null
+			y: null
 
-				z: null
+			z: null
 
-			@_shouldUpdateTransforms = no
+		@_shouldUpdateTransforms = no
 
-			return
+		return
 
-		__clonerForTransforms: (newStyleSetter) ->
+	__clonerForTransforms: (newStyleSetter) ->
 
-			newStyleSetter._shouldUpdateTransforms = no
+		newStyleSetter._shouldUpdateTransforms = no
 
-			return
+		return
 
-		_updateTransforms: ->
+	_updateTransforms: ->
 
-			return unless @_shouldUpdateTransforms
+		return unless @_shouldUpdateTransforms
 
-			@_shouldUpdateTransforms = no
+		@_shouldUpdateTransforms = no
 
-			do @_actuallyUpdateTransforms
+		do @_actuallyUpdateTransforms
 
-		_scheduleTransformsUpdate: ->
+	_scheduleTransformsUpdate: ->
 
-			@_shouldUpdateTransforms = yes
+		@_shouldUpdateTransforms = yes
 
-			do @_scheduleUpdate
+		do @_scheduleUpdate
 
-		_actuallyUpdateTransforms: ->
+	_actuallyUpdateTransforms: ->
 
-			css.setTransform @node, @_transformer.toPlainCss()
+		css.setTransform @node, @_transformer.toPlainCss()
 
-			@
+		@
 
-		go3d: ->
+	go3d: ->
 
-			css.setTransformStyle @node, 'preserve-3d'
+		css.setTransformStyle @node, 'preserve-3d'
 
-			@
+		@
 
-		goFlat: ->
+	goFlat: ->
 
-			css.setTransformStyle @node, 'flat'
+		css.setTransformStyle @node, 'flat'
 
-			@
+		@
 
-		setOrigin: (x = 0, y = 0, z = 0) ->
+	setOrigin: (x = 0, y = 0, z = 0) ->
 
-			@_origin.x = x
-			@_origin.y = y
-			@_origin.z = z
+		@_origin.x = x
+		@_origin.y = y
+		@_origin.z = z
 
-			css.setTransformOrigin @node,
+		css.setTransformOrigin @node,
 
-				"#{@_origin.x}px #{@_origin.y}px #{@_origin.z}px"
+			"#{@_origin.x}px #{@_origin.y}px #{@_origin.z}px"
 
-			do @el._updateAxis
+		do @el._updateAxis
 
-			@
+		@
 
-		originToBottom: ->
+	originToBottom: ->
 
-			css.setTransformOrigin @node,
+		css.setTransformOrigin @node,
 
-				"50% 100%"
+			"50% 100%"
 
-			@
+		@
 
-		originToTop: ->
+	originToTop: ->
 
-			css.setTransformOrigin @node,
+		css.setTransformOrigin @node,
 
-				"50% 0"
+			"50% 0"
 
-			@
+		@
 
-		pivot: (x = 0, y = 0) ->
+	pivot: (x = 0, y = 0) ->
 
-			if x is -1
+		if x is -1
 
-				_x = '0%'
+			_x = '0%'
 
-			else if x is 0
+		else if x is 0
 
-				_x = '50%'
+			_x = '50%'
 
-			else if x is 1
+		else if x is 1
 
 
-				_x = '100%'
+			_x = '100%'
 
-			else
+		else
 
-				throw Error "pivot() only takes -1, 0, and 1 for its arguments"
+			throw Error "pivot() only takes -1, 0, and 1 for its arguments"
 
-			if y is -1
+		if y is -1
 
-				_y = '0%'
+			_y = '0%'
 
-			else if y is 0
+		else if y is 0
 
-				_y = '50%'
+			_y = '50%'
 
-			else if y is 1
+		else if y is 1
 
 
-				_y = '100%'
+			_y = '100%'
 
-			else
+		else
 
-				throw Error "pivot() only takes -1, 0, and 1 for its arguments"
+			throw Error "pivot() only takes -1, 0, and 1 for its arguments"
 
-			css.setTransformOrigin @node,
+		css.setTransformOrigin @node,
 
-				"#{_x} #{_y}"
+			"#{_x} #{_y}"
 
-			do @el._updateAxis
+		do @el._updateAxis
 
-			@
+		@
 
-	ClassPrototype = Transforms_.prototype
+ClassPrototype = Transforms_.prototype
 
-	for methodName, method of TypedMatrix.prototype
+for methodName, method of TypedMatrix.prototype
 
-		continue unless method instanceof Function
+	continue unless method instanceof Function
 
-		continue if ClassPrototype[methodName]?
+	continue if ClassPrototype[methodName]?
 
-		continue if methodName[0] is '_'
+	continue if methodName[0] is '_'
 
-		continue if methodName is 'temporarily' or methodName is 'commit' or
-			methodName is 'rollBack' or methodName is 'toCss' or
-			methodName is 'toPlainCss' or methodName is 'toArray' or
-			methodName is 'toMatrix'
+	continue if methodName is 'temporarily' or methodName is 'commit' or
+		methodName is 'rollBack' or methodName is 'toCss' or
+		methodName is 'toPlainCss' or methodName is 'toArray' or
+		methodName is 'toMatrix'
 
-		do ->
+	do ->
 
-			_methodName = methodName
+		_methodName = methodName
 
-			if method.length is 0
+		if method.length is 0
 
-				ClassPrototype[_methodName] =  ->
+			ClassPrototype[_methodName] =  ->
 
-					# This is more performant than method.apply()
-					#
-					# Argument splats won't work here though.
-					@_transformer[_methodName]()
+				# This is more performant than method.apply()
+				#
+				# Argument splats won't work here though.
+				@_transformer[_methodName]()
 
-					do @_scheduleTransformsUpdate
+				do @_scheduleTransformsUpdate
 
-					@
+				@
 
-			else if method.length is 1
+		else if method.length is 1
 
-				ClassPrototype[_methodName] = (arg0) ->
+			ClassPrototype[_methodName] = (arg0) ->
 
-					@_transformer[_methodName] arg0
+				@_transformer[_methodName] arg0
 
-					do @_scheduleTransformsUpdate
+				do @_scheduleTransformsUpdate
 
-					@
+				@
 
-			else if method.length is 2
+		else if method.length is 2
 
-				ClassPrototype[_methodName] = (arg0, arg1) ->
+			ClassPrototype[_methodName] = (arg0, arg1) ->
 
-					@_transformer[_methodName] arg0, arg1
+				@_transformer[_methodName] arg0, arg1
 
-					do @_scheduleTransformsUpdate
+				do @_scheduleTransformsUpdate
 
-					@
+				@
 
-			else if method.length is 3
+		else if method.length is 3
 
-				ClassPrototype[_methodName] = (arg0, arg1, arg2) ->
+			ClassPrototype[_methodName] = (arg0, arg1, arg2) ->
 
-					@_transformer[_methodName] arg0, arg1, arg2
+				@_transformer[_methodName] arg0, arg1, arg2
 
-					do @_scheduleTransformsUpdate
+				do @_scheduleTransformsUpdate
 
-					@
+				@
 
-			else if method.length is 4
+		else if method.length is 4
 
-				ClassPrototype[_methodName] = (arg0, arg1, arg2, arg3) ->
+			ClassPrototype[_methodName] = (arg0, arg1, arg2, arg3) ->
 
-					@_transformer[_methodName] arg0, arg1, arg2, arg3
+				@_transformer[_methodName] arg0, arg1, arg2, arg3
 
-					do @_scheduleTransformsUpdate
+				do @_scheduleTransformsUpdate
 
-					@
+				@
 
-			else if method.length is 5
+		else if method.length is 5
 
-				ClassPrototype[_methodName] = (arg0, arg1, arg2, arg3, arg4) ->
+			ClassPrototype[_methodName] = (arg0, arg1, arg2, arg3, arg4) ->
 
-					@_transformer[_methodName] arg0, arg1, arg2, arg3, arg4
+				@_transformer[_methodName] arg0, arg1, arg2, arg3, arg4
 
-					do @_scheduleTransformsUpdate
+				do @_scheduleTransformsUpdate
 
-					@
+				@
 
-			else
+		else
 
-				throw Error "Methods with more than 5 args are not supported."
+			throw Error "Methods with more than 5 args are not supported."
 
-	Transforms_
+Transforms_

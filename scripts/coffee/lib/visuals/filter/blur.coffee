@@ -1,9 +1,5 @@
-if typeof define isnt 'function' then define = require('amdefine')(module)
+module.exports = blur =
 
-define ->
+	toCss: (radius) ->
 
-	blur = 
-
-		toCss: (radius) ->
-
-			"blur(#{radius}px)"
+		"blur(#{radius}px)"

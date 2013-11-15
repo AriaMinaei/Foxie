@@ -1,193 +1,191 @@
-define ->
+# The color value holder, with some utility functions.
+#
+# Conversion functions almost based on https://github.com/mjijackson/mjijackson.github.com/blob/master/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript.txt
+# Thanks to @mjijackson
+module.exports = class CSSColor
 
-	# The color value holder, with some utility functions.
-	#
-	# Conversion functions almost based on https://github.com/mjijackson/mjijackson.github.com/blob/master/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript.txt
-	# Thanks to @mjijackson
-	class CSSColor
+	constructor: (h, s, l) ->
 
-		constructor: (h, s, l) ->
+		@h = h
+		@s = s
+		@l = l
 
-			@h = h
-			@s = s
-			@l = l
+	setHue: (deg) ->
 
-		setHue: (deg) ->
+		@h = deg / 360
 
-			@h = deg / 360
+		@
 
-			@
+	rotateHue: (deg) ->
 
-		rotateHue: (deg) ->
+		deg /= 360
 
-			deg /= 360
+		@h = @h + deg
 
-			@h = @h + deg
+		@
 
-			@
+	setSaturation: (amount) ->
 
-		setSaturation: (amount) ->
+		@s = amount / 100
 
-			@s = amount / 100
+		@
 
-			@
+	saturate: (amount) ->
 
-		saturate: (amount) ->
+		@s += amount / 100
 
-			@s += amount / 100
+		@
 
-			@
+	setLightness: (amount) ->
 
-		setLightness: (amount) ->
+		@l = amount / 100
 
-			@l = amount / 100
+		@
 
-			@
+	lighten: (amount) ->
 
-		lighten: (amount) ->
+		@l += amount / 100
 
-			@l += amount / 100
+		@
 
-			@
+	toCss: ->
 
-		toCss: ->
+		h = Math.round @h * 360
+		s = Math.round @s * 100
+		l = Math.round @l * 100
 
-			h = Math.round @h * 360
-			s = Math.round @s * 100
-			l = Math.round @l * 100
+		"hsl(#{h}, #{s}%, #{l}%)"
 
-			"hsl(#{h}, #{s}%, #{l}%)"
+	fromHsl: (h, s, l) ->
 
-		fromHsl: (h, s, l) ->
+		@h = h / 360
+		@s = s / 100
+		@l = l / 100
 
-			@h = h / 360
-			@s = s / 100
-			@l = l / 100
+		@
 
-			@
+	toRgb: ->
 
-		toRgb: ->
+		r = 0
+		g = 0
+		b = 0
 
-			r = 0
-			g = 0
-			b = 0
+		if @s is 0
 
-			if @s is 0
+			r = g = b = @l # achromatic
 
-				r = g = b = @l # achromatic
+		else
 
-			else
+			q = (if @l < 0.5 then @l * (1 + @s) else @l + @s - @l * @s)
 
-				q = (if @l < 0.5 then @l * (1 + @s) else @l + @s - @l * @s)
+			p = 2 * @l - q
 
-				p = 2 * @l - q
+			r = CSSColor._hue2rgb(p, q, @h + 1 / 3)
 
-				r = CSSColor._hue2rgb(p, q, @h + 1 / 3)
+			g = CSSColor._hue2rgb(p, q, @h)
 
-				g = CSSColor._hue2rgb(p, q, @h)
+			b = CSSColor._hue2rgb(p, q, @h - 1 / 3)
 
-				b = CSSColor._hue2rgb(p, q, @h - 1 / 3)
+		[r * 255, g * 255, b * 255]
 
-			[r * 255, g * 255, b * 255]
+	fromRgb: (r, g, b) ->
 
-		fromRgb: (r, g, b) ->
+		r /= 255
+		g /= 255
+		b /= 255
 
-			r /= 255
-			g /= 255
-			b /= 255
+		max = Math.max r, g, b
+		min = Math.min r, g, b
 
-			max = Math.max r, g, b
-			min = Math.min r, g, b
+		h = 0
+		s = 0
 
-			h = 0
-			s = 0
+		l = (max + min) / 2
 
-			l = (max + min) / 2
+		unless max is min
 
-			unless max is min
+			d = max - min
 
-				d = max - min
+			s = (if l > 0.5 then d / (2 - max - min) else d / (max + min))
 
-				s = (if l > 0.5 then d / (2 - max - min) else d / (max + min))
+			switch max
 
-				switch max
+				when r
 
-					when r
+					h = (g - b) / d + ((if g < b then 6 else 0))
 
-						h = (g - b) / d + ((if g < b then 6 else 0))
+				when g
 
-					when g
+					h = (b - r) / d + 2
 
-						h = (b - r) / d + 2
+				when b
 
-					when b
+					h = (r - g) / d + 4
 
-						h = (r - g) / d + 4
+			h /= 6
 
-				h /= 6
+		@h = h
+		@s = s
+		@l = l
 
-			@h = h
-			@s = s
-			@l = l
+		@
 
-			@
+	clone: ->
 
-		clone: ->
+		new CSSColor @h, @s, @l
 
-			new CSSColor @h, @s, @l
+	@hsl: (h, s, l) ->
 
-		@hsl: (h, s, l) ->
+		new CSSColor h, s, l
 
-			new CSSColor h, s, l
+	@rgb: (r, g, b) ->
 
-		@rgb: (r, g, b) ->
+		r /= 255
+		g /= 255
+		b /= 255
 
-			r /= 255
-			g /= 255
-			b /= 255
+		max = Math.max r, g, b
+		min = Math.min r, g, b
 
-			max = Math.max r, g, b
-			min = Math.min r, g, b
+		h = 0
+		s = 0
 
-			h = 0
-			s = 0
+		l = (max + min) / 2
 
-			l = (max + min) / 2
+		unless max is min
 
-			unless max is min
+			d = max - min
 
-				d = max - min
+			s = (if l > 0.5 then d / (2 - max - min) else d / (max + min))
 
-				s = (if l > 0.5 then d / (2 - max - min) else d / (max + min))
+			switch max
 
-				switch max
+				when r
 
-					when r
+					h = (g - b) / d + ((if g < b then 6 else 0))
 
-						h = (g - b) / d + ((if g < b then 6 else 0))
+				when g
 
-					when g
+					h = (b - r) / d + 2
 
-						h = (b - r) / d + 2
+				when b
 
-					when b
+					h = (r - g) / d + 4
 
-						h = (r - g) / d + 4
+			h /= 6
 
-				h /= 6
+		new CSSColor h, s, l
 
-			new CSSColor h, s, l
+	@_hue2rgb = (p, q, t) ->
 
-		@_hue2rgb = (p, q, t) ->
+		t += 1  if t < 0
 
-			t += 1  if t < 0
+		t -= 1  if t > 1
 
-			t -= 1  if t > 1
+		return p + (q - p) * 6 * t  if t < 1 / 6
 
-			return p + (q - p) * 6 * t  if t < 1 / 6
+		return q  if t < 1 / 2
 
-			return q  if t < 1 / 2
+		return p + (q - p) * (2 / 3 - t) * 6  if t < 2 / 3
 
-			return p + (q - p) * (2 / 3 - t) * 6  if t < 2 / 3
-
-			p
+		p

@@ -1,248 +1,244 @@
-define [
+array = require './utility/array'
+Chain_ = require './el/mixin/Chain_'
+timing = require './timing/timing'
+object = require './utility/object'
+Styles_ = require './el/mixin/Styles_'
+Timing_ = require './el/mixin/Timing_'
+classic = require './utility/classic'
+lazyValues = require './utility/lazyValues'
+Interactions_ = require './el/mixin/Interactions_'
 
-	'./el/mixin/Styles_'
-	'./el/mixin/Chain_'
-	'./el/mixin/Timing_'
-	'./el/mixin/Interactions_'
-	'./timing/timing'
-	'./utility/object'
-	'./utility/array'
-	'./utility/classic'
-	'./utility/lazyValues'
+module.exports = classic.mix Styles_, Chain_, Timing_, Interactions_, class El
 
-], (Styles_, Chain_, Timing_, Interactions_, timing, object, array, classic, lazyValues) ->
+	@_defaultContainer: null
 
-	classic.mix Styles_, Chain_, Timing_, Interactions_, class El
+	@_getDefaultContainer: ->
 
-		@_defaultContainer: null
+		if @_defaultContainer?
 
-		@_getDefaultContainer: ->
+			return @_defaultContainer
 
-			if @_defaultContainer?
+		else
 
-				return @_defaultContainer
+			return document.body
 
-			else
+	@_: (fn) ->
 
-				return document.body
+		lazyValues.returnLazily fn
 
-		@_: (fn) ->
+	constructor: (@node) ->
 
-			lazyValues.returnLazily fn
+		unless @node instanceof Element
 
-		constructor: (@node) ->
+			throw Error "node must be an HTML element."
 
-			unless @node instanceof Element
+		if not @_shouldCloneInnerHTML?
 
-				throw Error "node must be an HTML element."
+			@_shouldCloneInnerHTML = no
 
-			if not @_shouldCloneInnerHTML?
+		El.__initMixinsFor @
 
-				@_shouldCloneInnerHTML = no
+		@_beenAppended = no
 
-			El.__initMixinsFor @
+		@_parent = null
 
-			@_beenAppended = no
+		@_children = []
 
-			@_parent = null
+		timing.nextTick =>
 
-			@_children = []
+			if not @_beenAppended
 
-			timing.nextTick =>
+				if not @node.parentElement? and @node.tagName isnt 'BODY'
 
-				if not @_beenAppended
+					@putIn El._getDefaultContainer()
 
-					if not @node.parentElement? and @node.tagName isnt 'BODY'
+				else
 
-						@putIn El._getDefaultContainer()
+					@_beenAppended = yes
 
-					else
+	clone: (newEl = Object.create @constructor::) ->
 
-						@_beenAppended = yes
+		@_doUpdate()
 
-		clone: (newEl = Object.create @constructor::) ->
+		# Adding the node
+		newNode = @node.cloneNode()
+		newEl.node = newNode
+		newEl._children = []
 
-			@_doUpdate()
+		# Cloning the children
+		if @_shouldCloneInnerHTML
 
-			# Adding the node
-			newNode = @node.cloneNode()
-			newEl.node = newNode
-			newEl._children = []
+			newEl.node.innerHTML = @node.innerHTML
 
-			# Cloning the children
-			if @_shouldCloneInnerHTML
-
-				newEl.node.innerHTML = @node.innerHTML
-
-			else
-
-				for child in @_children
-
-					child.clone().putIn newEl
-
-			# Deciding on the parent
-			newEl._parent = null
-
-			if @_parent?
-
-				parent = @_parent
-
-			else
-
-				parent = @node._parent ? @node.parentElement ? null
-
-			newEl._beenAppended = no
-
-			timing.afterFrame =>
-
-				if not newEl._beenAppended
-
-					newEl.putIn parent
-
-				return
-
-			El.__applyClonersFor @, [newEl]
-
-			for key, val of @
-
-				continue if newEl[key] isnt undefined
-
-				if @hasOwnProperty key
-
-					newEl[key] = object.clone val, yes
-
-			newEl
-
-		_notYourChildAnymore: (el) ->
-
-			unless el instanceof El
-
-				throw Error "`el` must be an instance of `El`"
-
-			array.pluckItem @_children, el
-
-			@
-
-		putIn: (el = El._getDefaultContainer()) ->
-
-			if @_parent?
-
-				@_parent._notYourChildAnymore @
-
-			if el instanceof El
-
-				el._append @
-				@_parent = el
-
-			else
-
-				el.appendChild @node
-				@_parent = null
-
-			@_beenAppended = yes
-
-			@
-
-		takeOutOfParent: ->
-
-			if @_parent?
-
-				@_parent._notYourChildAnymore @
-
-			@_parent = null
-
-			@_beenAppended = no
-
-			@
-
-		beDefaultContainer: ->
-
-			El._defaultContainer = @
-
-			@
-
-		_append: (el) ->
-
-			if el instanceof El
-
-				node = el.node
-				@_children.push el
-
-			else
-
-				node = el
-
-			@node.appendChild node
-
-			@
-
-		remove: ->
-
-			if @_parent?
-
-				@_parent._notYourChildAnymore @
-
-			if @node.parentNode?
-
-				@node.parentNode.removeChild @node
-
-			null
-
-		quit: ->
-
-			p = @node.parentNode
-
-			if p?
-
-				p.removeChild @node
+		else
 
 			for child in @_children
 
-				child.quit()
+				child.clone().putIn newEl
 
+		# Deciding on the parent
+		newEl._parent = null
 
-			El.__applyQuittersFor @
+		if @_parent?
+
+			parent = @_parent
+
+		else
+
+			parent = @node._parent ? @node.parentElement ? null
+
+		newEl._beenAppended = no
+
+		timing.afterFrame =>
+
+			if not newEl._beenAppended
+
+				newEl.putIn parent
 
 			return
 
-		each: (cb = null) ->
+		El.__applyClonersFor @, [newEl]
 
-			if cb instanceof Function
+		for key, val of @
 
-				# I have to use this loop, since the children
-				# might be put in another container
-				i = 0
-				child = null
-				counter = -1
+			continue if newEl[key] isnt undefined
 
-				loop
+			if @hasOwnProperty key
 
-					counter++
+				newEl[key] = object.clone val, yes
 
-					if child is @_children[i]
+		newEl
 
-						i++
+	_notYourChildAnymore: (el) ->
 
-					child = @_children[i]
+		unless el instanceof El
 
-					break unless child?
+			throw Error "`el` must be an instance of `El`"
 
-					cb.call @, child, counter
+		array.pluckItem @_children, el
 
-				return @
+		@
 
-			_interface = @_getNewInterface()
+	putIn: (el = El._getDefaultContainer()) ->
 
-			els = @_children
+		if @_parent?
 
-			if els.length isnt 0
+			@_parent._notYourChildAnymore @
 
-				timing.afterFrame =>
+		if el instanceof El
 
-					for el in els
+			el._append @
+			@_parent = el
 
-						@_getMethodChain().run _interface, el
+		else
 
-					null
+			el.appendChild @node
+			@_parent = null
 
-			return _interface
+		@_beenAppended = yes
+
+		@
+
+	takeOutOfParent: ->
+
+		if @_parent?
+
+			@_parent._notYourChildAnymore @
+
+		@_parent = null
+
+		@_beenAppended = no
+
+		@
+
+	beDefaultContainer: ->
+
+		El._defaultContainer = @
+
+		@
+
+	_append: (el) ->
+
+		if el instanceof El
+
+			node = el.node
+			@_children.push el
+
+		else
+
+			node = el
+
+		@node.appendChild node
+
+		@
+
+	remove: ->
+
+		if @_parent?
+
+			@_parent._notYourChildAnymore @
+
+		if @node.parentNode?
+
+			@node.parentNode.removeChild @node
+
+		null
+
+	quit: ->
+
+		p = @node.parentNode
+
+		if p?
+
+			p.removeChild @node
+
+		for child in @_children
+
+			child.quit()
+
+
+		El.__applyQuittersFor @
+
+		return
+
+	each: (cb = null) ->
+
+		if cb instanceof Function
+
+			# I have to use this loop, since the children
+			# might be put in another container
+			i = 0
+			child = null
+			counter = -1
+
+			loop
+
+				counter++
+
+				if child is @_children[i]
+
+					i++
+
+				child = @_children[i]
+
+				break unless child?
+
+				cb.call @, child, counter
+
+			return @
+
+		_interface = @_getNewInterface()
+
+		els = @_children
+
+		if els.length isnt 0
+
+			timing.afterFrame =>
+
+				for el in els
+
+					@_getMethodChain().run _interface, el
+
+				null
+
+		return _interface

@@ -1,77 +1,75 @@
-define ->
+module.exports = class Fill_
 
-	class Fill_
+	__initMixinFill: ->
 
-		__initMixinFill: ->
+		@_fromFill =
 
-			@_fromFill =
+			opacity: null
 
-				opacity: null
+		@_toFill =
 
-			@_toFill =
+			opacity: null
 
-				opacity: null
+		@_currentFill = @el._styleSetter._fill
 
-			@_currentFill = @el._styleSetter._fill
+		return
 
-			return
+	__clonerForFill: (newTransitioner) ->
 
-		__clonerForFill: (newTransitioner) ->
+		newTransitioner._currentFill = newTransitioner.el._styleSetter._fill
 
-			newTransitioner._currentFill = newTransitioner.el._styleSetter._fill
+		return
 
-			return
+	_adjustFromValuesForFill: ->
 
-		_adjustFromValuesForFill: ->
+		@_fromFill.opacity = @_currentFill.opacity
 
-			@_fromFill.opacity = @_currentFill.opacity
+		return
 
-			return
+	_disableTransitionForFill: ->
 
-		_disableTransitionForFill: ->
+		@_toFill.opacity = @_currentFill.opacity
 
-			@_toFill.opacity = @_currentFill.opacity
+		@_needsUpdate.opacity = no
 
-			@_needsUpdate.opacity = no
+		return
 
-			return
+	_updateTransitionForFill: (progress) ->
 
-		_updateTransitionForFill: (progress) ->
+		if @_needsUpdate.opacity
 
-			if @_needsUpdate.opacity
+			@_updateOpacity progress
 
-				@_updateOpacity progress
+		return
 
-			return
+	setOpacity: (d) ->
 
-		setOpacity: (d) ->
+		@_toFill.opacity = d
 
-			@_toFill.opacity = d
+		@_needsUpdate.opacity = yes
 
-			@_needsUpdate.opacity = yes
+		do @_update
 
-			do @_update
+		@
 
-			@
+	adjustOpacity: (d) ->
 
-		adjustOpacity: (d) ->
+		@_toFill.opacity = @_currentFill.opacity + d
 
-			@_toFill.opacity = @_currentFill.opacity + d
+		@_needsUpdate.opacity = yes
 
-			@_needsUpdate.opacity = yes
+		do @_update
 
-			do @_update
+		@
 
-			@
+	_updateOpacity: (progress) ->
 
-		_updateOpacity: (progress) ->
+		@_styleSetter.setOpacity (
 
-			@_styleSetter.setOpacity (
+			@_fromFill.opacity +
 
-				@_fromFill.opacity +
+			(@_toFill.opacity - @_fromFill.opacity) * progress
 
-				(@_toFill.opacity - @_fromFill.opacity) * progress
+		)
 
-			)
-
-			return
+		return

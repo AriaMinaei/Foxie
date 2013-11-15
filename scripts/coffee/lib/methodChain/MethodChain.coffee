@@ -1,36 +1,34 @@
-define [
-	'./_Interface'
-	'../utility/lazyValues'
-], (_Interface, lazyValues) ->
+_Interface = require './_Interface'
+lazyValues = require '../utility/lazyValues'
 
-	class MethodChain
+module.exports = class MethodChain
 
-		constructor: ->
+	constructor: ->
 
-			@_methods = {}
+		@_methods = {}
 
-			@_Interface = class I extends _Interface
+		@_Interface = class I extends _Interface
 
-		addMethod: (name) ->
+	addMethod: (name) ->
 
-			@_Interface::[name] = ->
+		@_Interface::[name] = ->
 
-				@_queue.push
+			@_queue.push
 
-					method: name
-					args: Array::slice.call arguments
+				method: name
+				args: Array::slice.call arguments
 
-				@
 			@
+		@
 
-		getInterface: ->
+	getInterface: ->
 
-			new @_Interface
+		new @_Interface
 
-		run: (_interface, context) ->
+	run: (_interface, context) ->
 
-			for item in _interface._queue
+		for item in _interface._queue
 
-				context = context[item.method].apply context, lazyValues.getLazyValues(item.args)
+			context = context[item.method].apply context, lazyValues.getLazyValues(item.args)
 
-			context
+		context

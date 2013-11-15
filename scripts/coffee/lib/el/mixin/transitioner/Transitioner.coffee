@@ -1,170 +1,168 @@
-define [
-	'./mixin/Fill_'
-	'./mixin/Transforms_'
-	'../../../timing/timing'
-	'../../../utility/object'
-	'../../../visuals/animation/easing'
-	'../../../utility/classic'
-], (Fill_, Transforms_, timing, object, easing, classic) ->
+Fill_ = require './mixin/Fill_'
+Transforms_ = require './mixin/Transforms_'
+timing = require '../../../timing/timing'
+object = require '../../../utility/object'
+easing = require '../../../visuals/animation/easing'
+classic = require '../../../utility/classic'
 
-	classic.mix Fill_, Transforms_, class Transitioner
+module.exports = classic.mix Fill_, Transforms_, class Transitioner
 
-		constructor: (@el) ->
+	constructor: (@el) ->
 
-			@_styleSetter = @el._styleSetter
+		@_styleSetter = @el._styleSetter
 
-			@_enabled = no
+		@_enabled = no
 
-			@_duration = 1000
+		@_duration = 1000
 
-			@_startTime = 0
+		@_startTime = 0
 
-			Transitioner.__initMixinsFor @
+		Transitioner.__initMixinsFor @
 
-			@_needsUpdate =
+		@_needsUpdate =
 
-				transformMovement: no
-				transformRotation: no
-				transformScale: no
-				transformPerspective: no
-				transformLocalMovement: no
-				opacity: no
+			transformMovement: no
+			transformRotation: no
+			transformScale: no
+			transformPerspective: no
+			transformLocalMovement: no
+			opacity: no
 
-			@_shouldUpdate = no
+		@_shouldUpdate = no
 
-			@ease 'cubic.easeOut'
+		@ease 'cubic.easeOut'
 
-		ease: (funcNameOrFirstNumOfCubicBezier, secondNum, thirdNum, fourthNum) ->
+	ease: (funcNameOrFirstNumOfCubicBezier, secondNum, thirdNum, fourthNum) ->
 
-			@_easing = easing.get.apply easing, arguments
+		@_easing = easing.get.apply easing, arguments
 
-			@
+		@
 
-		clone: (el) ->
+	clone: (el) ->
 
-			newObj = Object.create @constructor::
+		newObj = Object.create @constructor::
 
-			newObj.el = el
+		newObj.el = el
 
-			newObj._startTime = new Int32Array 1
-			newObj._startTime[0] = 0
+		newObj._startTime = new Int32Array 1
+		newObj._startTime[0] = 0
 
-			newObj._styleSetter = el._styleSetter
+		newObj._styleSetter = el._styleSetter
 
-			newObj._needsUpdate =
+		newObj._needsUpdate =
 
-				transformMovement: no
-				transformRotation: no
-				transformScale: no
-				transformPerspective: no
-				transformLocalMovement: no
-				opacity: no
+			transformMovement: no
+			transformRotation: no
+			transformScale: no
+			transformPerspective: no
+			transformLocalMovement: no
+			opacity: no
 
-			Transitioner.__applyClonersFor @, [newObj]
+		Transitioner.__applyClonersFor @, [newObj]
 
-			for key of @
+		for key of @
 
-				continue if newObj[key] isnt undefined
+			continue if newObj[key] isnt undefined
 
-				if @hasOwnProperty key
+			if @hasOwnProperty key
 
-					newObj[key] = object.clone @[key], yes
+				newObj[key] = object.clone @[key], yes
 
-			newObj
+		newObj
 
-		enable: (duration) ->
+	enable: (duration) ->
 
-			@_enabled = yes
+		@_enabled = yes
 
-			@_duration = duration
+		@_duration = duration
 
-			@
+		@
 
-		disable: ->
+	disable: ->
 
-			@_enabled = no
+		@_enabled = no
 
-			do @_stop
+		do @_stop
 
-			@
+		@
 
-		_stop: ->
+	_stop: ->
 
-			@_shouldUpdate = no
+		@_shouldUpdate = no
 
-			do @_disableTransitionForTransforms
-			do @_disableTransitionForFill
+		do @_disableTransitionForTransforms
+		do @_disableTransitionForFill
 
-			return
+		return
 
-		_update: ->
+	_update: ->
 
-			return if @_startTime is timing.timeInMs
+		return if @_startTime is timing.timeInMs
 
-			do @_startOver
+		do @_startOver
 
-			return
+		return
 
-		_startOver: ->
+	_startOver: ->
 
-			@_startTime = timing.timeInMs
+		@_startTime = timing.timeInMs
 
-			do @_adjustFromValues
+		do @_adjustFromValues
 
-			@_shouldUpdate = yes
+		@_shouldUpdate = yes
+
+		do @_scheduleUpdate
+
+	_adjustFromValues: ->
+
+		do @_adjustFromValuesForTransforms
+
+		do @_adjustFromValuesForFill
+
+		@
+
+	_scheduleUpdate: ->
+
+		do @el._scheduleUpdate
+
+	_updateTransition: ->
+
+		return if not @_enabled or not @_shouldUpdate
+
+		@_updateForTime timing.timeInMs
+
+	_updateForTime: (t) ->
+
+		ellapsed = (t - @_startTime)
+
+		progress = ellapsed / @_duration
+
+		if progress >= 1
+
+			progress = 1
+
+		else
 
 			do @_scheduleUpdate
 
-		_adjustFromValues: ->
+		progress = @_ease progress
 
-			do @_adjustFromValuesForTransforms
+		@_updateByProgress progress
 
-			do @_adjustFromValuesForFill
+		if progress is 1
 
-			@
+			do @_stop
 
-		_scheduleUpdate: ->
+		return
 
-			do @el._scheduleUpdate
+	_updateByProgress: (progress) ->
 
-		_updateTransition: ->
+		@_updateTransitionForTransforms progress
 
-			return if not @_enabled or not @_shouldUpdate
+		@_updateTransitionForFill progress
 
-			@_updateForTime timing.timeInMs
+		null
 
-		_updateForTime: (t) ->
+	_ease: (progress) ->
 
-			ellapsed = (t - @_startTime)
-
-			progress = ellapsed / @_duration
-
-			if progress >= 1
-
-				progress = 1
-
-			else
-
-				do @_scheduleUpdate
-
-			progress = @_ease progress
-
-			@_updateByProgress progress
-
-			if progress is 1
-
-				do @_stop
-
-			return
-
-		_updateByProgress: (progress) ->
-
-			@_updateTransitionForTransforms progress
-
-			@_updateTransitionForFill progress
-
-			null
-
-		_ease: (progress) ->
-
-			@_easing progress
+		@_easing progress

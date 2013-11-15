@@ -1,45 +1,45 @@
-define ['../../MethodChain/MethodChain'], (MethodChain) ->
+MethodChain = require '../../MethodChain/MethodChain'
 
-	class Chain_
+module.exports = class Chain_
 
-		_getMethodChain: ->
+	_getMethodChain: ->
 
-			unless @constructor.__methodChain?
+		unless @constructor.__methodChain?
 
-				@constructor.__methodChain = new MethodChain
+			@constructor.__methodChain = new MethodChain
 
-				for key, fn of @
+			for key, fn of @
 
-					continue if key[0] is '_' or key is 'constructor'
+				continue if key[0] is '_' or key is 'constructor'
 
-					continue unless fn instanceof Function
+				continue unless fn instanceof Function
 
-					@constructor.__methodChain.addMethod key
+				@constructor.__methodChain.addMethod key
 
-			@constructor.__methodChain
+		@constructor.__methodChain
 
-		_getNewInterface: ->
+	_getNewInterface: ->
 
-			@_getMethodChain().getInterface()
+		@_getMethodChain().getInterface()
 
-		_eventEnabledMethod: (args, runCallback) ->
+	_eventEnabledMethod: (args, runCallback) ->
 
-			fn = args[0] ? null
+		fn = args[0] ? null
 
-			if fn
+		if fn
 
-				runCallback =>
+			runCallback =>
 
-					fn.apply @, arguments
+				fn.apply @, arguments
 
-				return @
+			return @
 
-			else
+		else
 
-				_interface = @_getNewInterface()
+			_interface = @_getNewInterface()
 
-				runCallback =>
+			runCallback =>
 
-					@_getMethodChain().run _interface, @
+				@_getMethodChain().run _interface, @
 
-				return _interface
+			return _interface

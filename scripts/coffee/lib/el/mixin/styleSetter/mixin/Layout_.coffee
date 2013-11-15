@@ -1,31 +1,29 @@
-define ->
+module.exports = class Layout_
 
-	class Layout_
+	__initMixinLayout: ->
 
-		__initMixinLayout: ->
+		@_dims =
 
-			@_dims =
+			width: null
 
-				width: null
+			height: null
 
-				height: null
+	setWidth: (w) ->
 
-		setWidth: (w) ->
+		@_dims.width = w
 
-			@_dims.width = w
+		@_styles.width = w + 'px'
 
-			@_styles.width = w + 'px'
+		do @el._updateAxis
 
-			do @el._updateAxis
+		@
 
-			@
+	setHeight: (h) ->
 
-		setHeight: (h) ->
+		@_dims.height = h
 
-			@_dims.height = h
+		@_styles.height = h + 'px'
 
-			@_styles.height = h + 'px'
+		do @el._updateAxis
 
-			do @el._updateAxis
-
-			@
+		@

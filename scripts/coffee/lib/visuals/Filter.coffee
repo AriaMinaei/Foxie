@@ -1,98 +1,94 @@
-if typeof define isnt 'function' then define = require('amdefine')(module)
+blur = require './Filter/blur'
+brightness = require './Filter/brightness'
+contrast = require './Filter/contrast'
+grayscale = require './Filter/grayscale'
+hueRotate = require './Filter/hueRotate'
+invert = require './Filter/invert'
+opacity = require './Filter/opacity'
+saturate = require './Filter/saturate'
+sepia = require './Filter/sepia'
 
-define [
-	'./Filter/blur'
-	'./Filter/brightness'
-	'./Filter/contrast'
-	'./Filter/grayscale'
-	'./Filter/hueRotate'
-	'./Filter/invert'
-	'./Filter/opacity'
-	'./Filter/saturate'
-	'./Filter/sepia'
-], (blur, brightness, contrast, grayscale, hueRotate, invert, opacity, saturate, sepia) ->
+filters =
 
-	filters =
+	blur: blur
+	brightness: brightness
+	contrast: contrast
+	grayscale: grayscale
+	hueRotate: hueRotate
+	invert: invert
+	opacity: opacity
+	saturate: saturate
+	sepia: sepia
 
-		blur: blur
-		brightness: brightness
-		contrast: contrast
-		grayscale: grayscale
-		hueRotate: hueRotate
-		invert: invert
-		opacity: opacity
-		saturate: saturate
-		sepia: sepia
+# Remember that filters are only supported on some ports of webkit,
+# and my testing on Chrome/Win showed that they slow the rendering
+# down.
+module.exports = class CSSFilter
 
-	# Remember that filters are only supported on some ports of webkit,
-	# and my testing on Chrome/Win showed that they slow the rendering
-	# down.
-	class CSSFilter
+	constructor: ->
 
-		constructor: ->
+		@_filters = {}
 
-			@_filters = {}
+	setBlur: (d) ->
 
-		setBlur: (d) ->
+		@_filters.blur = d
 
-			@_filters.blur = d
+		@
 
-			@
+	setBrightness: (d) ->
 
-		setBrightness: (d) ->
+		@_filters.brightness = d
 
-			@_filters.brightness = d
+		@
 
-			@
+	setContrast: (d) ->
 
-		setContrast: (d) ->
+		@_filters.contrast = d
 
-			@_filters.contrast = d
+		@
 
-			@
+	setGrayscale: (d) ->
 
-		setGrayscale: (d) ->
+		@_filters.grayscale = d
 
-			@_filters.grayscale = d
+		@
 
-			@
+	rotateHue: (d) ->
 
-		rotateHue: (d) ->
+		@_filters.hueRotate = d
 
-			@_filters.hueRotate = d
+		@
 
-			@
+	invertColors: (d) ->
 
-		invertColors: (d) ->
+		@_filters.invert = d
 
-			@_filters.invert = d
+		@
 
-			@
+	setOpacity: (d) ->
 
-		setOpacity: (d) ->
+		@_filters.opacity = d
 
-			@_filters.opacity = d
+		@
 
-			@
+	setSaturation: (d) ->
 
-		setSaturation: (d) ->
+		@_filters.saturate = d
 
-			@_filters.saturate = d
+		@
 
-			@
+	setSepia: (d) ->
 
-		setSepia: (d) ->
+		@_filters.sepia = d
 
-			@_filters.sepia = d
+		@
 
-			@
+	toCss: ->
 
-		toCss: ->
+		str = ''
 
-			str = ''
+		for key, value of @_filters
 
-			for key, value of @_filters
+			str += filters[key].toCss(value) + ' '
 
-				str += filters[key].toCss(value) + ' '
-
-			str
+		str

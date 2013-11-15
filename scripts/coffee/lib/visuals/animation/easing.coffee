@@ -1,87 +1,85 @@
-define ['./Bezier'], (Bezier) ->
+Bezier = require './Bezier'
 
-	# Some standard easing curves for tween animations, originally from MooTools.
+# Some standard easing curves for tween animations, originally from MooTools.
+#
+# See easings.net
+module.exports = easing =
+
+	# Linear easing
+	linear: (p) -> p
+
+	# To define a easing function. It'll take care of the ease in, out, and in-out
+	# parts.
 	#
-	# See easings.net
-	easing =
+	# Example: easing.define 'quad', (p) -> p * p
+	#
+	# usage: easing.quad.easeIn 0.6
+	define: (name, func) ->
 
-		# Linear easing
-		linear: (p) -> p
+		if typeof name is 'object'
 
-		# To define a easing function. It'll take care of the ease in, out, and in-out
-		# parts.
-		#
-		# Example: easing.define 'quad', (p) -> p * p
-		#
-		# usage: easing.quad.easeIn 0.6
-		define: (name, func) ->
+			easing.define _name, _func for _name, _func of name
 
-			if typeof name is 'object'
+			return
 
-				easing.define _name, _func for _name, _func of name
+		easing[name] =
 
-				return
+			easeIn: func
 
-			easing[name] =
+			easeOut: (p) -> 1 - func( 1 - p )
 
-				easeIn: func
+			easeInOut: (p) ->
 
-				easeOut: (p) -> 1 - func( 1 - p )
+				if p <= 0.5
+					return 0.5 * func( p * 2 )
+				else
+					return 0.5 * ( 2 - func( 2 * ( 1 - p ) ) )
 
-				easeInOut: (p) ->
+	get: (func) ->
 
-					if p <= 0.5
-						return 0.5 * func( p * 2 )
-					else
-						return 0.5 * ( 2 - func( 2 * ( 1 - p ) ) )
+		if func instanceof Function
 
-		get: (func) ->
+			return func
 
-			if func instanceof Function
+		else if arguments[1]? and arguments[2]? and arguments[3]?
 
-				return func
+			b = new Bezier arguments[0], arguments[1], arguments[2], arguments[3]
 
-			else if arguments[1]? and arguments[2]? and arguments[3]?
+			return (p) ->
 
-				b = new Bezier arguments[0], arguments[1], arguments[2], arguments[3]
+				b.solve p, Bezier.epsilon
 
-				return (p) ->
+		unless typeof func is 'string'
 
-					b.solve p, Bezier.epsilon
+			throw Error "func should either be a function or a string, like cubic.easeOut"
 
-			unless typeof func is 'string'
+		parts = func.split '.'
 
-				throw Error "func should either be a function or a string, like cubic.easeOut"
+		f = easing
 
-			parts = func.split '.'
+		for part in parts
 
-			f = easing
+			f = f[part]
 
-			for part in parts
+		if typeof f is 'undefined'
 
-				f = f[part]
+			throw Error "Cannot find easing function `#{func}`"
 
-			if typeof f is 'undefined'
+		f
 
-				throw Error "Cannot find easing function `#{func}`"
+# Defining the standard easings
+easing.define
 
-			f
+	quad: 	(p) -> Math.pow p, 2
 
-	# Defining the standard easings
-	easing.define
+	cubic: 	(p) -> Math.pow p, 3
 
-		quad: 	(p) -> Math.pow p, 2
+	quart: 	(p) -> Math.pow p, 4
 
-		cubic: 	(p) -> Math.pow p, 3
+	quint: 	(p) -> Math.pow p, 5
 
-		quart: 	(p) -> Math.pow p, 4
+	expo: 	(p) -> Math.pow 2, 8 * (p - 1)
 
-		quint: 	(p) -> Math.pow p, 5
+	circ:	(p) -> 1 - Math.sin Math.cos p
 
-		expo: 	(p) -> Math.pow 2, 8 * (p - 1)
-
-		circ:	(p) -> 1 - Math.sin Math.cos p
-
-		sine:	(p) -> 1 - Math.cos p * Math.PI / 2
-
-	easing
+	sine:	(p) -> 1 - Math.cos p * Math.PI / 2

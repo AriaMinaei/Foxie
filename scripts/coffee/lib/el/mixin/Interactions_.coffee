@@ -1,49 +1,47 @@
-define ->
+module.exports = class Interactions_
 
-	class Interactions_
+	onClick: ->
 
-		onClick: ->
+		@_eventEnabledMethod arguments, (cb) =>
 
-			@_eventEnabledMethod arguments, (cb) =>
+			@node.addEventListener 'click', (e) =>
 
-				@node.addEventListener 'click', (e) =>
+				e.preventDefault()
 
-					e.preventDefault()
+				cb.call @, e
 
-					cb.call @, e
+	onTap: ->
 
-		onTap: ->
+		@_eventEnabledMethod arguments, (cb) =>
 
-			@_eventEnabledMethod arguments, (cb) =>
+			@node.addEventListener 'touchstart', (e) =>
 
-				@node.addEventListener 'touchstart', (e) =>
+				e.preventDefault()
 
-					e.preventDefault()
+				cb.call @, e
 
-					cb.call @, e
+			@node.addEventListener 'click', (e) =>
 
-				@node.addEventListener 'click', (e) =>
+				e.preventDefault()
 
-					e.preventDefault()
+				cb.call @, e
 
-					cb.call @, e
+	onMouseOver: ->
 
-		onMouseOver: ->
+		@_eventEnabledMethod arguments, (cb) =>
 
-			@_eventEnabledMethod arguments, (cb) =>
+			@node.addEventListener 'mouseover', (e) =>
 
-				@node.addEventListener 'mouseover', (e) =>
+				e.preventDefault()
 
-					e.preventDefault()
+				cb.call @, e
 
-					cb.call @, e
+	onMouseOut: ->
 
-		onMouseOut: ->
+		@_eventEnabledMethod arguments, (cb) =>
 
-			@_eventEnabledMethod arguments, (cb) =>
+			@node.addEventListener 'mouseout', (e) =>
 
-				@node.addEventListener 'mouseout', (e) =>
+				e.preventDefault()
 
-					e.preventDefault()
-
-					cb.call @, e
+				cb.call @, e

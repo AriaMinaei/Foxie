@@ -1,39 +1,39 @@
-define ['../../../../utility/css'], (css) ->
+css = require '../../../../utility/css'
 
-	class General_
+module.exports = class General_
 
-		z: (i) ->
+	z: (i) ->
 
-			@node.style.zIndex = i
+		@node.style.zIndex = i
 
-			@
+		@
 
-		css: (prop, val) ->
+	css: (prop, val) ->
 
-			@_styles[prop] = val
+		@_styles[prop] = val
 
-			@
+		@
 
-		addClass: (c) ->
+	addClass: (c) ->
 
-			@node.classList.add c
+		@node.classList.add c
 
-			@
+		@
 
-		removeClass: (c) ->
+	removeClass: (c) ->
 
-			@node.classList.remove c
+		@node.classList.remove c
 
-			@
+		@
 
-		toggleClass: (c) ->
+	toggleClass: (c) ->
 
-			@node.classList.toggle c
+		@node.classList.toggle c
 
-			@
+		@
 
-		setClass: (c) ->
+	setClass: (c) ->
 
-			@node.className = c
+		@node.className = c
 
-			@
+		@

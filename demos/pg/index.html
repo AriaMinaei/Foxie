@@ -2,16 +2,18 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Foxie's Playground</title>
-	<script src="../common/curl.js"></script>
+	<script src="../common/requirejs/require.js"></script>
 	<script>
-	curl.config({
+	require.config({
 		packages: [{
 			name: 'Foxie',
-			location: '../../scripts/js/lib',
+			location: '../../scripts/dist',
 			main: 'Foxie'
 		}]
 	});
 	</script>
+
+	<!-- <script src="../../scripts/dist/Foxie.js"></script> -->
 	<style>
 		body {
 			background: #313131;
@@ -32,64 +34,66 @@
 			return setTimeout(f, t);
 		};
 
+		require(['Foxie'], function(Foxie){
 
+			wait(100, function(){
 
-		curl('Foxie', function(Foxie){
-
-			getNewEl = function(){
-				node = document.createElement('div')
-				node.classList.add('ball')
-				document.body.appendChild(node);
-				return new Foxie(node);
-			}
-			els = []
-			for (i = 0; i != 60; i++) {
-				el = getNewEl()
-				el.i = i;
-				els.push(el);
-			}
-
-			t = 300;
-
-			bringIn = function(){
-				for (i = 0; i < els.length; i++) {
-					bringElIn(els[i]);
+				getNewEl = function(){
+					node = document.createElement('div')
+					node.classList.add('ball')
+					document.body.appendChild(node);
+					return new Foxie(node);
 				}
-			};
-
-			takeOut = function(){
-				for (i = 0; i < els.length; i++) {
-					takeElOut(els[i]);
+				els = []
+				for (i = 0; i != 60; i++) {
+					el = getNewEl()
+					el.i = i;
+					els.push(el);
 				}
-			};
 
-			bringElIn = function(el){
-				el
-				.noTrans()
-				.setOpacity(0)
-				.trans(t)
-				.moveXTo(Math.random() * 600)
-				.moveYTo(el.i * 60 + 5)
-				.setOpacity(1)
-			};
+				t = 300;
 
-			takeElOut = function(el){
-				el
-				.noTrans()
-				.setOpacity(1)
-				.moveXTo(0)
-				.moveYTo(el.i * 60)
-			}
+				bringIn = function(){
+					for (i = 0; i < els.length; i++) {
+						bringElIn(els[i]);
+					}
+				};
 
-			bringIn();
+				takeOut = function(){
+					for (i = 0; i < els.length; i++) {
+						takeElOut(els[i]);
+					}
+				};
 
-			document.addEventListener('keydown', function(){
-				if (event.keyCode == 37) {
-					takeOut();
-				} else if (event.keyCode == 39) {
-					bringIn();
+				bringElIn = function(el){
+					el
+					.noTrans()
+					.setOpacity(0)
+					.trans(t)
+					.moveXTo(Math.random() * 600)
+					.moveYTo(el.i * 60 + 5)
+					.setOpacity(1)
+				};
+
+				takeElOut = function(el){
+					el
+					.noTrans()
+					.setOpacity(1)
+					.moveXTo(0)
+					.moveYTo(el.i * 60)
 				}
-			})
+
+				bringIn();
+
+				document.addEventListener('keydown', function(){
+					if (event.keyCode == 37) {
+						takeOut();
+					} else if (event.keyCode == 39) {
+						bringIn();
+					}
+				})
+			});
+
 
 
 		});

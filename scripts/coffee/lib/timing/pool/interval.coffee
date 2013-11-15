@@ -1,37 +1,35 @@
-define ->
+module.exports = intervalPool =
 
-	intervalPool =
+	_pool: []
 
-		_pool: []
+	_getNew: (every, from, timesCalled, fn) ->
 
-		_getNew: (every, from, timesCalled, fn) ->
+		{
+			every: every
+			from: from
+			timesCalled: timesCalled
+			fn: fn
+		}
 
-			{
-				every: every
-				from: from
-				timesCalled: timesCalled
-				fn: fn
-			}
+	give: (every, from, timesCalled, fn) ->
 
-		give: (every, from, timesCalled, fn) ->
+		if intervalPool._pool.length > 0
 
-			if intervalPool._pool.length > 0
+			item = intervalPool._pool.pop()
 
-				item = intervalPool._pool.pop()
+			item.every = every
+			item.from = from
+			item.timesCalled = timesCalled
+			item.fn = fn
 
-				item.every = every
-				item.from = from
-				item.timesCalled = timesCalled
-				item.fn = fn
+			return item
 
-				return item
+		else
 
-			else
+			return intervalPool._getNew every, from, timesCalled, fn
 
-				return intervalPool._getNew every, from, timesCalled, fn
+	take: (item) ->
 
-		take: (item) ->
+		intervalPool._pool.push item
 
-			intervalPool._pool.push item
-
-			null
+		null

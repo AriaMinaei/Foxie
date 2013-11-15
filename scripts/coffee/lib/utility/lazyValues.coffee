@@ -1,45 +1,43 @@
-define ->
+module.exports = lazyValues = {}
 
-	lazyValues = {}
+lazyValues.getLazyValue = (val) ->
 
-	lazyValues.getLazyValue = (val) ->
+	if val._isLazy? and val._isLazy
 
-		if val._isLazy? and val._isLazy
+		return do val
 
-			return do val
+	else
 
-		else
+		return val
 
-			return val
+lazyValues.getLazyValues = (ar) ->
 
-	lazyValues.getLazyValues = (ar) ->
+	lazyValues.getLazyValue item for item in ar
 
-		lazyValues.getLazyValue item for item in ar
+lazyValues.returnLazily = (fn) ->
 
-	lazyValues.returnLazily = (fn) ->
+	->
 
-		->
+		args = arguments
 
-			args = arguments
-
-			ret = =>
-
-				fn.apply @, args
-
-			ret._isLazy = yes
-
-			ret
-
-	lazyValues.acceptLazyArgs = (fn) ->
-
-		->
-
-			args = lazyValues.getLazyValues arguments
+		ret = =>
 
 			fn.apply @, args
 
-	lazyValues.acceptAndReturnLazily = (fn) ->
+		ret._isLazy = yes
 
-		lazyValues.returnLazily lazyValues.acceptLazyArgs fn
+		ret
 
-	lazyValues
+lazyValues.acceptLazyArgs = (fn) ->
+
+	->
+
+		args = lazyValues.getLazyValues arguments
+
+		fn.apply @, args
+
+lazyValues.acceptAndReturnLazily = (fn) ->
+
+	lazyValues.returnLazily lazyValues.acceptLazyArgs fn
+
+lazyValues

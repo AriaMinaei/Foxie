@@ -1,9 +1,5 @@
-if typeof define isnt 'function' then define = require('amdefine')(module)
+module.exports = saturate =
 
-define ->
+	toCss: (amount) ->
 
-	saturate = 
-
-		toCss: (amount) ->
-
-			"saturate(#{amount}%)"
+		"saturate(#{amount}%)"

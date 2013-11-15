@@ -1,52 +1,50 @@
-define ->
+getCSSProp = do ->
 
-	getCSSProp = do ->
+	p = null
 
-		p = null
+	el = document.createElement 'div'
 
-		el = document.createElement 'div'
+	(possibleProps) ->
 
-		(possibleProps) ->
+		for prop in possibleProps
 
-			for prop in possibleProps
+			return prop if el.style[prop] isnt undefined
 
-				return prop if el.style[prop] isnt undefined
+		false
 
-			false
+cssPropertySetter = (prop) ->
 
-	cssPropertySetter = (prop) ->
+	actualProp = getCSSProp getPossiblePropsFor prop
 
-		actualProp = getCSSProp getPossiblePropsFor prop
+	return (->) unless actualProp
 
-		return (->) unless actualProp
+	(el, v) -> el.style[actualProp] = v
 
-		(el, v) -> el.style[actualProp] = v
+getPossiblePropsFor = (prop) ->
 
-	getPossiblePropsFor = (prop) ->
+	[
+		'webkit' + prop[0].toUpperCase() + prop.substr(1, prop.length),
 
-		[
-			'webkit' + prop[0].toUpperCase() + prop.substr(1, prop.length),
+		'moz' + prop[0].toUpperCase() + prop.substr(1, prop.length),
 
-			'moz' + prop[0].toUpperCase() + prop.substr(1, prop.length),
+		prop
+	]
 
-			prop
-		]
+module.exports = css =
 
-	css =
+	setTransform: cssPropertySetter 'transform'
 
-		setTransform: cssPropertySetter 'transform'
+	setTransformStyle: cssPropertySetter 'transformStyle'
 
-		setTransformStyle: cssPropertySetter 'transformStyle'
+	setTransformOrigin: cssPropertySetter 'transformOrigin'
 
-		setTransformOrigin: cssPropertySetter 'transformOrigin'
+	setCssFilter: cssPropertySetter 'filter'
 
-		setCssFilter: cssPropertySetter 'filter'
+	setTransitionDuration: cssPropertySetter 'transitionDuration'
 
-		setTransitionDuration: cssPropertySetter 'transitionDuration'
+	setTransitionTimingFunction: cssPropertySetter 'transitionTimingFunction'
 
-		setTransitionTimingFunction: cssPropertySetter 'transitionTimingFunction'
+	# Turns numbers to css rgb representation
+	rgb: (r, g, b) ->
 
-		# Turns numbers to css rgb representation
-		rgb: (r, g, b) ->
-
-			'rgb(' + r + ', ' + g + ', ' + b + ')'
+		'rgb(' + r + ', ' + g + ', ' + b + ')'

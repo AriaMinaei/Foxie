@@ -1,9 +1,5 @@
-if typeof define isnt 'function' then define = require('amdefine')(module)
+module.exports = contrast =
 
-define ->
+	toCss: (amount) ->
 
-	contrast = 
-
-		toCss: (amount) ->
-
-			"contrast(#{amount}%)"
+		"contrast(#{amount}%)"

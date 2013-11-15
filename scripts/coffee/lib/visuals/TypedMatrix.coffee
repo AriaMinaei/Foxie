@@ -1,708 +1,703 @@
-if typeof define isnt 'function' then define = require('amdefine')(module)
+base = require './TypedMatrix/base'
+translation = require './TypedMatrix/translation'
+scale = require './TypedMatrix/scale'
+perspective = require './TypedMatrix/perspective'
+rotation = require './TypedMatrix/rotation'
 
-define [
 
-	'./TypedMatrix/base'
-	'./TypedMatrix/translation'
-	'./TypedMatrix/scale'
-	'./TypedMatrix/perspective'
-	'./TypedMatrix/rotation'
+emptyStack = ->
 
-], (base, translation, scale, perspective, rotation) ->
+	a = new Float64Array 16
 
-	emptyStack = ->
+	a[0] = 0
+	a[1] = 0
+	a[2] = 0
 
-		a = new Float64Array 16
+	a[3] = 1
+	a[4] = 1
+	a[5] = 1
 
-		a[0] = 0
-		a[1] = 0
-		a[2] = 0
+	a[6] = 10000
 
-		a[3] = 1
-		a[4] = 1
-		a[5] = 1
+	a[7] = 0
+	a[8] = 0
+	a[9] = 0
 
-		a[6] = 10000
+	a[10] = 0
+	a[11] = 0
+	a[12] = 0
 
-		a[7] = 0
-		a[8] = 0
-		a[9] = 0
+	a[13] = 0
+	a[14] = 0
+	a[15] = 0
 
-		a[10] = 0
-		a[11] = 0
-		a[12] = 0
+	a
 
-		a[13] = 0
-		a[14] = 0
-		a[15] = 0
+copyStack = (from, to) ->
 
-		a
+	to[0] = from[0]
+	to[1] = from[1]
+	to[2] = from[2]
 
-	copyStack = (from, to) ->
+	to[3] = from[3]
+	to[4] = from[4]
+	to[5] = from[5]
 
-		to[0] = from[0]
-		to[1] = from[1]
-		to[2] = from[2]
+	to[6]  = from[6]
 
-		to[3] = from[3]
-		to[4] = from[4]
-		to[5] = from[5]
+	to[7] = from[7]
+	to[8] = from[8]
+	to[9] = from[9]
 
-		to[6]  = from[6]
+	to[10] = from[10]
+	to[11] = from[11]
+	to[12] = from[12]
 
-		to[7] = from[7]
-		to[8] = from[8]
-		to[9] = from[9]
+	to[13] = from[13]
+	to[14] = from[14]
+	to[15] = from[15]
 
-		to[10] = from[10]
-		to[11] = from[11]
-		to[12] = from[12]
+	return
 
-		to[13] = from[13]
-		to[14] = from[14]
-		to[15] = from[15]
+module.exports = class TypedMatrix
 
-		return
+	@_emptyStack: emptyStack
 
-	class TypedMatrix
+	constructor: ->
 
-		@_emptyStack: emptyStack
+		@_main = emptyStack()
+		@_temp = emptyStack()
 
-		constructor: ->
+		@_current = @_main
 
-			@_main = emptyStack()
-			@_temp = emptyStack()
+		@_has =
 
+			movement: no
+
+			perspective: no
+
+			rotation: no
+
+			scale: no
+
+			localMovement: no
+
+			localRotation: no
+
+
+		@_identityMatrix = base.identity()
+
+		@_tempMode = no
+
+	temporarily: ->
+
+		copyStack @_main, @_temp
+		@_current = @_temp
+
+		@_tempMode = yes
+
+		@
+
+	commit: ->
+
+		if @_tempMode
+
+			copyStack @_temp, @_main
 			@_current = @_main
-
-			@_has =
-
-				movement: no
-
-				perspective: no
-
-				rotation: no
-
-				scale: no
-
-				localMovement: no
-
-				localRotation: no
-
-
-			@_identityMatrix = base.identity()
 
 			@_tempMode = no
 
-		temporarily: ->
+		@
 
-			copyStack @_main, @_temp
-			@_current = @_temp
+	rollBack: ->
 
-			@_tempMode = yes
+		if @_tempMode
 
-			@
+			@_current = @_main
 
-		commit: ->
+			@_tempMode = no
 
-			if @_tempMode
+		@
 
-				copyStack @_temp, @_main
-				@_current = @_main
+	toCss: ->
 
-				@_tempMode = no
+		base.toCss @toMatrix()
 
-			@
+	toPlainCss: ->
 
-		rollBack: ->
+		# movement
+		if @_has.movement
 
-			if @_tempMode
+			css = translation.toPlainCss @_current[0], @_current[1], @_current[2]
 
-				@_current = @_main
+		else
 
-				@_tempMode = no
+			css = ''
 
-			@
+		# perspectove
+		if @_has.perspective
 
-		toCss: ->
+			css += perspective.toPlainCss @_current[6]
 
-			base.toCss @toMatrix()
+		# rotation
+		if @_has.rotation
 
-		toPlainCss: ->
+			css += rotation.toPlainCss @_current[7], @_current[8], @_current[9]
 
-			# movement
-			if @_has.movement
+		# translation
+		if @_has.localMovement
 
-				css = translation.toPlainCss @_current[0], @_current[1], @_current[2]
+			css += translation.toPlainCss @_current[10], @_current[11], @_current[12]
 
-			else
+		# rotation
+		if @_has.localRotation
 
-				css = ''
+			css += rotation.toPlainCss @_current[13], @_current[14], @_current[15]
 
-			# perspectove
-			if @_has.perspective
+		# scale
+		if @_has.scale
 
-				css += perspective.toPlainCss @_current[6]
+			css += scale.toPlainCss @_current[3], @_current[4], @_current[5]
 
-			# rotation
-			if @_has.rotation
+		css
 
-				css += rotation.toPlainCss @_current[7], @_current[8], @_current[9]
+	toArray: ->
 
-			# translation
-			if @_has.localMovement
+		base.toArray @toMatrix()
 
-				css += translation.toPlainCss @_current[10], @_current[11], @_current[12]
+	toMatrix: ->
 
-			# rotation
-			if @_has.localRotation
+		soFar = @_getIdentityMatrix()
 
-				css += rotation.toPlainCss @_current[13], @_current[14], @_current[15]
+		# movement
+		if @_has.movement
 
-			# scale
-			if @_has.scale
+			soFar = translation.setTo soFar, @_current[0], @_current[1], @_current[2]
 
-				css += scale.toPlainCss @_current[3], @_current[4], @_current[5]
+		# scale
+		if @_has.scale
 
-			css
+			scale.applyTo soFar, @_current[3], @_current[4], @_current[5]
 
-		toArray: ->
+		# perspectove
+		if @_has.perspective
 
-			base.toArray @toMatrix()
+			perspective.applyTo soFar, @_current[6]
 
-		toMatrix: ->
+		# rotation
+		if @_has.rotation
 
-			soFar = @_getIdentityMatrix()
+			rotation.applyTo soFar, @_current[7], @_current[8], @_current[9]
 
-			# movement
-			if @_has.movement
+		# translation
+		if @_has.localMovement
 
-				soFar = translation.setTo soFar, @_current[0], @_current[1], @_current[2]
+			translation.applyTo soFar, @_current[10], @_current[11], @_current[12]
 
-			# scale
-			if @_has.scale
+		# localRotation
+		if @_has.localRotation
 
-				scale.applyTo soFar, @_current[3], @_current[4], @_current[5]
+			rotation.applyTo soFar, @_current[13], @_current[14], @_current[15]
 
-			# perspectove
-			if @_has.perspective
+		soFar
 
-				perspective.applyTo soFar, @_current[6]
+	_getIdentityMatrix: ->
 
-			# rotation
-			if @_has.rotation
+		base.setIdentity @_identityMatrix
 
-				rotation.applyTo soFar, @_current[7], @_current[8], @_current[9]
+		@_identityMatrix
 
-			# translation
-			if @_has.localMovement
+	###
+	Movement
+	###
 
-				translation.applyTo soFar, @_current[10], @_current[11], @_current[12]
+	resetMovement: ->
 
-			# localRotation
-			if @_has.localRotation
+		@_has.movement = no
 
-				rotation.applyTo soFar, @_current[13], @_current[14], @_current[15]
+		@_current[0] = 0
+		@_current[1] = 0
+		@_current[2] = 0
 
-			soFar
+		@
 
-		_getIdentityMatrix: ->
+	movement: ->
 
-			base.setIdentity @_identityMatrix
+		{
+			x: @_current[0]
+			y: @_current[1]
+			z: @_current[2]
+		}
 
-			@_identityMatrix
+	moveTo: (x, y, z) ->
 
-		###
-		Movement
-		###
+		@_has.movement = yes
 
-		resetMovement: ->
+		@_current[0] = x
+		@_current[1] = y
+		@_current[2] = z
 
-			@_has.movement = no
+		@
 
-			@_current[0] = 0
-			@_current[1] = 0
-			@_current[2] = 0
+	moveXTo: (x) ->
 
-			@
+		@_has.movement = yes
 
-		movement: ->
+		@_current[0] = x
 
-			{
-				x: @_current[0]
-				y: @_current[1]
-				z: @_current[2]
-			}
+		@
 
-		moveTo: (x, y, z) ->
+	moveYTo: (y) ->
 
-			@_has.movement = yes
+		@_has.movement = yes
 
-			@_current[0] = x
-			@_current[1] = y
-			@_current[2] = z
+		@_current[1] = y
 
-			@
+		@
 
-		moveXTo: (x) ->
+	moveZTo: (z) ->
 
-			@_has.movement = yes
+		@_has.movement = yes
 
-			@_current[0] = x
+		@_current[2] = z
 
-			@
+		@
 
-		moveYTo: (y) ->
+	move: (x, y, z) ->
 
-			@_has.movement = yes
+		@_has.movement = yes
 
-			@_current[1] = y
+		@_current[0] += x
+		@_current[1] += y
+		@_current[2] += z
 
-			@
+		@
 
-		moveZTo: (z) ->
+	moveX: (x) ->
 
-			@_has.movement = yes
+		@_has.movement = yes
 
-			@_current[2] = z
+		@_current[0] += x
 
-			@
+		@
 
-		move: (x, y, z) ->
+	moveY: (y) ->
 
-			@_has.movement = yes
+		@_has.movement = yes
 
-			@_current[0] += x
-			@_current[1] += y
-			@_current[2] += z
+		@_current[1] += y
 
-			@
+		@
 
-		moveX: (x) ->
+	moveZ: (z) ->
 
-			@_has.movement = yes
+		@_has.movement = yes
 
-			@_current[0] += x
+		@_current[2] += z
 
-			@
+		@
 
-		moveY: (y) ->
+	###
+	Scale
+	###
 
-			@_has.movement = yes
+	resetScale: ->
 
-			@_current[1] += y
+		@_has.scale = no
 
-			@
+		@_current[3] = 1
+		@_current[4] = 1
+		@_current[5] = 1
 
-		moveZ: (z) ->
+		@
 
-			@_has.movement = yes
+	getScale: ->
 
-			@_current[2] += z
+		{
+			x: @_current[3]
+			y: @_current[4]
+			z: @_current[5]
+		}
 
-			@
+	scaleTo: (x, y, z) ->
 
-		###
-		Scale
-		###
+		@_has.scale = yes
 
-		resetScale: ->
+		@_current[3] = x
+		@_current[4] = y
+		@_current[5] = z
+
+		@
+
+	scaleXTo: (x) ->
+
+		@_has.scale = yes
+
+		@_current[3] = x
+
+		@
+
+	scaleYTo: (y) ->
+
+		@_has.scale = yes
+
+		@_current[4] = y
+
+		@
+
+	scaleZTo: (z) ->
+
+		@_has.scale = yes
+
+		@_current[5] = z
+
+		@
+
+	scale: (x, y, z) ->
+
+		@_has.scale = yes
+
+		@_current[3] *= x
+		@_current[4] *= y
+		@_current[5] *= z
+
+		@
+
+	scaleAllTo: (x) ->
+
+		if x is 1
 
 			@_has.scale = no
 
-			@_current[3] = 1
-			@_current[4] = 1
-			@_current[5] = 1
-
-			@
-
-		getScale: ->
-
-			{
-				x: @_current[3]
-				y: @_current[4]
-				z: @_current[5]
-			}
-
-		scaleTo: (x, y, z) ->
+		else
 
 			@_has.scale = yes
 
-			@_current[3] = x
-			@_current[4] = y
-			@_current[5] = z
+		@_current[3] = @_current[4] = @_current[5] = x
 
-			@
+		@
 
-		scaleXTo: (x) ->
+	scaleX: (x) ->
 
-			@_has.scale = yes
+		@_has.scale = yes
 
-			@_current[3] = x
+		@_current[3] *= x
 
-			@
+		@
 
-		scaleYTo: (y) ->
+	scaleY: (y) ->
 
-			@_has.scale = yes
+		@_has.scale = yes
 
-			@_current[4] = y
+		@_current[4] *= y
 
-			@
+		@
 
-		scaleZTo: (z) ->
+	scaleZ: (z) ->
 
-			@_has.scale = yes
+		@_has.scale = yes
 
-			@_current[5] = z
+		@_current[5] *= z
 
-			@
+		@
 
-		scale: (x, y, z) ->
+	###
+	Perspective
+	###
 
-			@_has.scale = yes
+	resetPerspective: ->
 
-			@_current[3] *= x
-			@_current[4] *= y
-			@_current[5] *= z
+		@_current[6] = 0
 
-			@
+		@_has.perspective = no
 
-		scaleAllTo: (x) ->
+		@
 
-			if x is 1
+	perspective: (d) ->
 
-				@_has.scale = no
+		@_current[6] = d
 
-			else
+		if d
 
-				@_has.scale = yes
+			@_has.perspective = yes
 
-			@_current[3] = @_current[4] = @_current[5] = x
+		@
 
-			@
+	###
+	Rotation
+	###
 
-		scaleX: (x) ->
+	resetRotation: ->
 
-			@_has.scale = yes
+		@_has.rotation = no
 
-			@_current[3] *= x
+		@_current[7] = 0
+		@_current[8] = 0
+		@_current[9] = 0
 
-			@
+		@
 
-		scaleY: (y) ->
+	rotation: ->
 
-			@_has.scale = yes
+		{
+			x: @_current[7]
+			y: @_current[8]
+			z: @_current[9]
+		}
 
-			@_current[4] *= y
+	rotateTo: (x, y, z) ->
 
-			@
+		@_has.rotation = yes
 
-		scaleZ: (z) ->
+		@_current[7] = x
+		@_current[8] = y
+		@_current[9] = z
 
-			@_has.scale = yes
+		@
 
-			@_current[5] *= z
+	rotateXTo: (x) ->
 
-			@
+		@_has.rotation = yes
 
-		###
-		Perspective
-		###
+		@_current[7] = x
 
-		resetPerspective: ->
+		@
 
-			@_current[6] = 0
+	rotateYTo: (y) ->
 
-			@_has.perspective = no
+		@_has.rotation = yes
 
-			@
+		@_current[8] = y
 
-		perspective: (d) ->
+		@
 
-			@_current[6] = d
+	rotateZTo: (z) ->
 
-			if d
+		@_has.rotation = yes
 
-				@_has.perspective = yes
+		@_current[9] = z
 
-			@
+		@
 
-		###
-		Rotation
-		###
+	rotate: (x, y, z) ->
 
-		resetRotation: ->
+		@_has.rotation = yes
 
-			@_has.rotation = no
+		@_current[7] += x
+		@_current[8] += y
+		@_current[9] += z
 
-			@_current[7] = 0
-			@_current[8] = 0
-			@_current[9] = 0
+		@
 
-			@
+	rotateX: (x) ->
 
-		rotation: ->
+		@_has.rotation = yes
 
-			{
-				x: @_current[7]
-				y: @_current[8]
-				z: @_current[9]
-			}
+		@_current[7] += x
 
-		rotateTo: (x, y, z) ->
+		@
 
-			@_has.rotation = yes
+	rotateY: (y) ->
 
-			@_current[7] = x
-			@_current[8] = y
-			@_current[9] = z
+		@_has.rotation = yes
 
-			@
+		@_current[8] += y
 
-		rotateXTo: (x) ->
+		@
 
-			@_has.rotation = yes
+	rotateZ: (z) ->
 
-			@_current[7] = x
+		@_has.rotation = yes
 
-			@
+		@_current[9] += z
 
-		rotateYTo: (y) ->
+		@
 
-			@_has.rotation = yes
+	###
+	Local Movement
+	###
 
-			@_current[8] = y
+	resetLocalMovement: ->
 
-			@
+		@_has.localMovement = no
 
-		rotateZTo: (z) ->
+		@_current[10] = 0
+		@_current[11] = 0
+		@_current[12] = 0
 
-			@_has.rotation = yes
+		@
 
-			@_current[9] = z
+	localMovement: ->
 
-			@
+		{
+			x: @_current[10]
+			y: @_current[11]
+			z: @_current[12]
+		}
 
-		rotate: (x, y, z) ->
+	localMoveTo: (x, y, z) ->
 
-			@_has.rotation = yes
+		@_has.localMovement = yes
 
-			@_current[7] += x
-			@_current[8] += y
-			@_current[9] += z
+		@_current[10] = x
+		@_current[11] = y
+		@_current[12] = z
 
-			@
+		@
 
-		rotateX: (x) ->
+	localMoveXTo: (x) ->
 
-			@_has.rotation = yes
+		@_has.localMovement = yes
 
-			@_current[7] += x
+		@_current[10] = x
 
-			@
+		@
 
-		rotateY: (y) ->
+	localMoveYTo: (y) ->
 
-			@_has.rotation = yes
+		@_has.localMovement = yes
 
-			@_current[8] += y
+		@_current[11] = y
 
-			@
+		@
 
-		rotateZ: (z) ->
+	localMoveZTo: (z) ->
 
-			@_has.rotation = yes
+		@_has.localMovement = yes
 
-			@_current[9] += z
+		@_current[12] = z
 
-			@
+		@
 
-		###
-		Local Movement
-		###
+	localMove: (x, y, z) ->
 
-		resetLocalMovement: ->
+		@_has.localMovement = yes
 
-			@_has.localMovement = no
+		@_current[10] += x
+		@_current[11] += y
+		@_current[12] += z
 
-			@_current[10] = 0
-			@_current[11] = 0
-			@_current[12] = 0
+		@
 
-			@
+	localMoveX: (x) ->
 
-		localMovement: ->
+		@_has.localMovement = yes
 
-			{
-				x: @_current[10]
-				y: @_current[11]
-				z: @_current[12]
-			}
+		@_current[10] += x
 
-		localMoveTo: (x, y, z) ->
+		@
 
-			@_has.localMovement = yes
+	localMoveY: (y) ->
 
-			@_current[10] = x
-			@_current[11] = y
-			@_current[12] = z
+		@_has.localMovement = yes
 
-			@
+		@_current[11] += y
 
-		localMoveXTo: (x) ->
+		@
 
-			@_has.localMovement = yes
+	localMoveZ: (z) ->
 
-			@_current[10] = x
+		@_has.localMovement = yes
 
-			@
+		@_current[12] += z
 
-		localMoveYTo: (y) ->
+		@
 
-			@_has.localMovement = yes
+	###
+	Local Rotation
+	###
 
-			@_current[11] = y
+	resetLocalRotation: ->
 
-			@
+		@_has.localRotation = no
 
-		localMoveZTo: (z) ->
+		@_current[13] = 0
+		@_current[14] = 0
+		@_current[15] = 0
 
-			@_has.localMovement = yes
+		@
 
-			@_current[12] = z
+	localRotation: ->
 
-			@
+		{
+			x: @_current[13]
+			y: @_current[14]
+			z: @_current[15]
+		}
 
-		localMove: (x, y, z) ->
+	localRotateTo: (x, y, z) ->
 
-			@_has.localMovement = yes
+		@_has.localRotation = yes
 
-			@_current[10] += x
-			@_current[11] += y
-			@_current[12] += z
+		@_current[13] = x
+		@_current[14] = y
+		@_current[15] = z
 
-			@
+		@
 
-		localMoveX: (x) ->
+	localRotateXTo: (x) ->
 
-			@_has.localMovement = yes
+		@_has.localRotation = yes
 
-			@_current[10] += x
+		@_current[13] = x
 
-			@
+		@
 
-		localMoveY: (y) ->
+	localRotateYTo: (y) ->
 
-			@_has.localMovement = yes
+		@_has.localRotation = yes
 
-			@_current[11] += y
+		@_current[14] = y
 
-			@
+		@
 
-		localMoveZ: (z) ->
+	localRotateZTo: (z) ->
 
-			@_has.localMovement = yes
+		@_has.localRotation = yes
 
-			@_current[12] += z
+		@_current[15] = z
 
-			@
+		@
 
-		###
-		Local Rotation
-		###
+	localRotate: (x, y, z) ->
 
-		resetLocalRotation: ->
+		@_has.localRotation = yes
 
-			@_has.localRotation = no
+		@_current[13] += x
+		@_current[14] += y
+		@_current[15] += z
 
-			@_current[13] = 0
-			@_current[14] = 0
-			@_current[15] = 0
+		@
 
-			@
+	localRotateX: (x) ->
 
-		localRotation: ->
+		@_has.localRotation = yes
 
-			{
-				x: @_current[13]
-				y: @_current[14]
-				z: @_current[15]
-			}
+		@_current[13] += x
 
-		localRotateTo: (x, y, z) ->
+		@
 
-			@_has.localRotation = yes
+	localRotateY: (y) ->
 
-			@_current[13] = x
-			@_current[14] = y
-			@_current[15] = z
+		@_has.localRotation = yes
 
-			@
+		@_current[14] += y
 
-		localRotateXTo: (x) ->
+		@
 
-			@_has.localRotation = yes
+	localRotateZ: (z) ->
 
-			@_current[13] = x
+		@_has.localRotation = yes
 
-			@
+		@_current[15] += z
 
-		localRotateYTo: (y) ->
+		@
 
-			@_has.localRotation = yes
+	resetAll: ->
 
-			@_current[14] = y
-
-			@
-
-		localRotateZTo: (z) ->
-
-			@_has.localRotation = yes
-
-			@_current[15] = z
-
-			@
-
-		localRotate: (x, y, z) ->
-
-			@_has.localRotation = yes
-
-			@_current[13] += x
-			@_current[14] += y
-			@_current[15] += z
-
-			@
-
-		localRotateX: (x) ->
-
-			@_has.localRotation = yes
-
-			@_current[13] += x
-
-			@
-
-		localRotateY: (y) ->
-
-			@_has.localRotation = yes
-
-			@_current[14] += y
-
-			@
-
-		localRotateZ: (z) ->
-
-			@_has.localRotation = yes
-
-			@_current[15] += z
-
-			@
-
-		resetAll: ->
-
-			do @resetMovement
-			do @resetScale
-			do @resetPerspective
-			do @resetRotation
-			do @resetLocalMovement
-			do @resetLocalRotation
+		do @resetMovement
+		do @resetScale
+		do @resetPerspective
+		do @resetRotation
+		do @resetLocalMovement
+		do @resetLocalRotation

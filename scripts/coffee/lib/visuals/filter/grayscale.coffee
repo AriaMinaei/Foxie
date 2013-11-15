@@ -1,9 +1,5 @@
-if typeof define isnt 'function' then define = require('amdefine')(module)
+module.exports = grayscale =
 
-define ->
+	toCss: (amount) ->
 
-	grayscale = 
-
-		toCss: (amount) ->
-
-			"grayscale(#{amount}%)"
+		"grayscale(#{amount}%)"

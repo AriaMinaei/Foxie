@@ -1,49 +1,47 @@
-define ->
+module.exports = class Layout_
 
-	class Layout_
+	__initMixinLayout: ->
 
-		__initMixinLayout: ->
+		@_dimsFrom =
 
-			@_dimsFrom =
+			width: null
 
-				width: null
+			height: null
 
-				height: null
+		@_dimsTo =
 
-			@_dimsTo =
+			width: null
 
-				width: null
+			height: null
 
-				height: null
+	setWidth: (w) ->
 
-		setWidth: (w) ->
+		@_dimsTo.width = w
 
-			@_dimsTo.width = w
+		@_dimsFrom.width = @_styleSetter._dims.width
 
-			@_dimsFrom.width = @_styleSetter._dims.width
+		@_addUpdater '_updateWidth'
 
-			@_addUpdater '_updateWidth'
+		@
 
-			@
+	_updateWidth: (progress) ->
 
-		_updateWidth: (progress) ->
+		@_styleSetter.setWidth @_dimsFrom.width +
 
-			@_styleSetter.setWidth @_dimsFrom.width +
+			( (@_dimsTo.width - @_dimsFrom.width) * progress )
 
-				( (@_dimsTo.width - @_dimsFrom.width) * progress )
+	setHeight: (h) ->
 
-		setHeight: (h) ->
+		@_dimsTo.height = h
 
-			@_dimsTo.height = h
+		@_dimsFrom.height = @_styleSetter._dims.height
 
-			@_dimsFrom.height = @_styleSetter._dims.height
+		@_addUpdater '_updateHeight'
 
-			@_addUpdater '_updateHeight'
+		@
 
-			@
+	_updateHeight: (progress) ->
 
-		_updateHeight: (progress) ->
+		@_styleSetter.setHeight @_dimsFrom.height +
 
-			@_styleSetter.setHeight @_dimsFrom.height +
-
-				( (@_dimsTo.height - @_dimsFrom.width) * progress )
+			( (@_dimsTo.height - @_dimsFrom.width) * progress )

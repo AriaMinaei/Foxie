@@ -1,159 +1,157 @@
-define [
-	'../../utility/array'
-	'../../timing/timing'
-], (array, timing) ->
+array = require '../../utility/array'
+timing = require '../../timing/timing'
 
-	class Timing_
+module.exports = class Timing_
 
-		__initMixinTiming: ->
+	__initMixinTiming: ->
 
-			@_quittersForTiming = []
+		@_quittersForTiming = []
 
-			null
+		null
 
-		__clonerForTiming: (newEl) ->
+	__clonerForTiming: (newEl) ->
 
-			newEl._quittersForTiming = []
+		newEl._quittersForTiming = []
 
-		__quitterForTiming: ->
+	__quitterForTiming: ->
 
-			loop
+		loop
 
-				return if @_quittersForTiming.length < 1
+			return if @_quittersForTiming.length < 1
 
-				@_quittersForTiming.pop()()
+			@_quittersForTiming.pop()()
 
-			return
+		return
 
-		_getMethodChain: ->
+	_getMethodChain: ->
 
-			unless @constructor.__methodChain?
+		unless @constructor.__methodChain?
 
-				@constructor.__methodChain = new MethodChain
+			@constructor.__methodChain = new MethodChain
 
-				for key, fn of @
+			for key, fn of @
 
-					continue if key[0] is '_' or key is 'constructor'
+				continue if key[0] is '_' or key is 'constructor'
 
-					continue unless fn instanceof Function
+				continue unless fn instanceof Function
 
-					@constructor.__methodChain.addMethod key
+				@constructor.__methodChain.addMethod key
 
-			@constructor.__methodChain
+		@constructor.__methodChain
 
-		_getNewInterface: ->
+	_getNewInterface: ->
 
-			@_getMethodChain().getInterface()
+		@_getMethodChain().getInterface()
 
-		wait: (ms, rest...) ->
+	wait: (ms, rest...) ->
 
-			@_eventEnabledMethod rest, (cb) =>
+		@_eventEnabledMethod rest, (cb) =>
 
-				timing.wait ms, =>
-
-					cb.call @
-
-		immediately: ->
-
-			@_eventEnabledMethod arguments, (cb) =>
-
-				timing.afterFrame =>
-
-					cb.call @
-
-		eachFrame: ->
-
-			@_eventEnabledMethod arguments, (cb) =>
-
-				startTime = new Int32Array 1
-				startTime[0] = -1
-
-				canceled = no
-
-				canceler = =>
-
-					return if canceled
-
-					timing.cancelFrames theCallback
-
-					array.pluckOneItem @_quittersForTiming, canceler
-
-					canceled = yes
-
-				@_quittersForTiming.push canceler
-
-				theCallback = (t) =>
-
-					if startTime[0] < 0
-
-						startTime[0] = t
-
-						elapsedTime = 0
-
-					else
-
-						elapsedTime = t - startTime[0]
-
-					cb.call @, elapsedTime, canceler
-
-					null
-
-				timing.frames theCallback
-
-		run: ->
-
-			@_eventEnabledMethod arguments, (cb) =>
+			timing.wait ms, =>
 
 				cb.call @
 
-			@
+	immediately: ->
 
-		every: (ms, args...) ->
+		@_eventEnabledMethod arguments, (cb) =>
 
-			@_eventEnabledMethod args, (cb) =>
+			timing.afterFrame =>
 
-				canceled = no
+				cb.call @
 
-				canceler = =>
+	eachFrame: ->
 
-					return if canceled
+		@_eventEnabledMethod arguments, (cb) =>
 
-					timing.cancelEvery theCallback
+			startTime = new Int32Array 1
+			startTime[0] = -1
 
-					array.pluckOneItem @_quittersForTiming, canceler
+			canceled = no
 
-					canceled = yes
+			canceler = =>
 
-				@_quittersForTiming.push canceler
+				return if canceled
 
-				theCallback = =>
+				timing.cancelFrames theCallback
 
-					cb.call @, canceler
+				array.pluckOneItem @_quittersForTiming, canceler
 
-				timing.every ms, theCallback
+				canceled = yes
 
-		everyAndNow: (ms, args...) ->
+			@_quittersForTiming.push canceler
 
-			@_eventEnabledMethod args, (cb) =>
+			theCallback = (t) =>
 
-				canceled = no
+				if startTime[0] < 0
 
-				canceler = =>
+					startTime[0] = t
 
-					return if canceled
+					elapsedTime = 0
 
-					timing.cancelEvery theCallback
+				else
 
-					array.pluckOneItem @_quittersForTiming, canceler
+					elapsedTime = t - startTime[0]
 
-					canceled = yes
+				cb.call @, elapsedTime, canceler
 
-				@_quittersForTiming.push canceler
+				null
 
-				theCallback = =>
+			timing.frames theCallback
 
-					cb.call @, canceler
+	run: ->
 
-				timing.every ms, theCallback
+		@_eventEnabledMethod arguments, (cb) =>
 
-				timing.afterFrame theCallback
+			cb.call @
+
+		@
+
+	every: (ms, args...) ->
+
+		@_eventEnabledMethod args, (cb) =>
+
+			canceled = no
+
+			canceler = =>
+
+				return if canceled
+
+				timing.cancelEvery theCallback
+
+				array.pluckOneItem @_quittersForTiming, canceler
+
+				canceled = yes
+
+			@_quittersForTiming.push canceler
+
+			theCallback = =>
+
+				cb.call @, canceler
+
+			timing.every ms, theCallback
+
+	everyAndNow: (ms, args...) ->
+
+		@_eventEnabledMethod args, (cb) =>
+
+			canceled = no
+
+			canceler = =>
+
+				return if canceled
+
+				timing.cancelEvery theCallback
+
+				array.pluckOneItem @_quittersForTiming, canceler
+
+				canceled = yes
+
+			@_quittersForTiming.push canceler
+
+			theCallback = =>
+
+				cb.call @, canceler
+
+			timing.every ms, theCallback
+
+			timing.afterFrame theCallback

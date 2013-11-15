@@ -1,9 +1,5 @@
-if typeof define isnt 'function' then define = require('amdefine')(module)
+module.exports = sepia =
 
-define ->
+	toCss: (amount) ->
 
-	sepia = 
-
-		toCss: (amount) ->
-
-			"sepia(#{amount}%)"
+		"sepia(#{amount}%)"

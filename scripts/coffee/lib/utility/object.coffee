@@ -1,6 +1,6 @@
-if typeof define isnt 'function' then define = require('amdefine')(module)
+common = require './_common'
 
-define ['./_common'], (common) -> object =
+module.exports = object =
 
 	isBareObject: common.isBareObject.bind common
 

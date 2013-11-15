@@ -1,328 +1,326 @@
-define [
-	'../utility/array'
-	'./pool/timeout'
-	'./pool/interval'
-], (array, timeoutPool, intervalPool) ->
+array = require '../utility/array'
+timeoutPool = require './pool/timeout'
+intervalPool = require './pool/interval'
 
-	getTime = do ->
+getTime = do ->
 
-		if performance? and performance.now?
+	if performance? and performance.now?
 
-			return -> performance.now()
+		return -> performance.now()
 
-		else
+	else
 
-			return Date.now() - 1372763687107
+		return Date.now() - 1372763687107
 
-	_nextFrame = do ->
+_nextFrame = do ->
 
-		return window.requestAnimationFrame if window.requestAnimationFrame
+	return window.requestAnimationFrame if window.requestAnimationFrame
 
-		return window.mozRequestAnimationFrame if window.mozRequestAnimationFrame
+	return window.mozRequestAnimationFrame if window.mozRequestAnimationFrame
 
-		return window.webkitRequestAnimationFrame if window.webkitRequestAnimationFrame
+	return window.webkitRequestAnimationFrame if window.webkitRequestAnimationFrame
 
-	_cancelNextFrame = do ->
+_cancelNextFrame = do ->
 
-		return window.cancelAnimationFrame if window.cancelAnimationFrame
+	return window.cancelAnimationFrame if window.cancelAnimationFrame
 
-		return window.mozCancelAnimationFrame if window.mozCancelAnimationFrame
+	return window.mozCancelAnimationFrame if window.mozCancelAnimationFrame
 
-		return window.webkitCancelAnimationFrame if window.webkitCancelAnimationFrame
+	return window.webkitCancelAnimationFrame if window.webkitCancelAnimationFrame
 
-	timing =
+module.exports = timing =
 
-		getTime: getTime
+	getTime: getTime
 
-		time: 0
+	time: 0
 
-		timeInMs: 0
+	timeInMs: 0
 
-		speed: 1
+	speed: 1
 
-		_toCallOnNextTick: []
+	_toCallOnNextTick: []
 
-		_nextTickTimeout: null
+	_nextTickTimeout: null
 
-		nextTick: (fn) ->
+	nextTick: (fn) ->
 
-			timing._toCallOnNextTick.push fn
+		timing._toCallOnNextTick.push fn
 
-			unless timing._nextTickTimeout
+		unless timing._nextTickTimeout
 
-				timing._nextTickTimeout = setTimeout =>
+			timing._nextTickTimeout = setTimeout =>
 
-					do timing._callTick
+				do timing._callTick
 
-				, 0
+			, 0
 
-			null
+		null
 
-		_callTick: ->
+	_callTick: ->
 
-			return if timing._toCallOnNextTick.length < 1
+		return if timing._toCallOnNextTick.length < 1
 
-			timing._nextTickTimeout = null
+		timing._nextTickTimeout = null
 
-			toCallNow = timing._toCallOnNextTick
+		toCallNow = timing._toCallOnNextTick
 
-			timing._toCallOnNextTick = []
+		timing._toCallOnNextTick = []
 
-			for fn in toCallNow
+		for fn in toCallNow
 
-				do fn
+			do fn
 
-			null
+		null
 
-		_toCallLaterAfterFrame: []
+	_toCallLaterAfterFrame: []
 
-		afterFrame: (fn) ->
+	afterFrame: (fn) ->
 
-			timing._toCallLaterAfterFrame.push fn
+		timing._toCallLaterAfterFrame.push fn
 
-			null
+		null
 
-		_callFramesScheduledForAfterFrame: (t) ->
+	_callFramesScheduledForAfterFrame: (t) ->
+
+		return if timing._toCallLaterAfterFrame.length < 1
+
+		loop
 
 			return if timing._toCallLaterAfterFrame.length < 1
 
-			loop
+			toCall = timing._toCallLaterAfterFrame
 
-				return if timing._toCallLaterAfterFrame.length < 1
+			timing._toCallLaterAfterFrame = []
 
-				toCall = timing._toCallLaterAfterFrame
-
-				timing._toCallLaterAfterFrame = []
-
-				for fn in toCall
-
-					fn t
-
-			null
-
-		_toCallOnFrame: []
-
-		frame: (fn) ->
-
-			timing._toCallOnFrame.push fn
-
-			null
-
-		cancelFrame: (fn) ->
-
-			array.pluckOneItem timing._toCallOnFrame, fn
-
-			null
-
-		_callFramesScheduledForFrame: (t) ->
-
-			return if timing._toCallOnFrame.length < 1
-
-			toCallNow = timing._toCallOnFrame
-
-			timing._toCallOnFrame = []
-
-			for fn in toCallNow
+			for fn in toCall
 
 				fn t
 
-			null
+		null
 
-		_toCallOnFrames: []
+	_toCallOnFrame: []
 
-		_toCancelCallingOnFrame: []
+	frame: (fn) ->
 
-		frames: (fn) ->
+		timing._toCallOnFrame.push fn
 
-			timing._toCallOnFrames.push fn
+		null
 
-			null
+	cancelFrame: (fn) ->
 
-		cancelFrames: (fn) ->
+		array.pluckOneItem timing._toCallOnFrame, fn
 
-			timing._toCancelCallingOnFrame.push fn
+		null
 
-			null
+	_callFramesScheduledForFrame: (t) ->
 
-		_callFramesScheduledForFrames: (t) ->
+		return if timing._toCallOnFrame.length < 1
 
-			return if timing._toCallOnFrames.length < 1
+		toCallNow = timing._toCallOnFrame
 
-			for toCancel in timing._toCancelCallingOnFrame
+		timing._toCallOnFrame = []
 
-				array.pluckOneItem timing._toCallOnFrames, toCancel
+		for fn in toCallNow
 
-			timing._toCancelCallingOnFrame.length = 0
+			fn t
 
-			for fn in timing._toCallOnFrames
+		null
 
-				fn t
+	_toCallOnFrames: []
 
-			return
+	_toCancelCallingOnFrame: []
 
-		_toCallAfterFrames: []
+	frames: (fn) ->
 
-		_toCancelCallingAfterFrames: []
+		timing._toCallOnFrames.push fn
 
-		afterFrames: (fn) ->
+		null
 
-			timing._toCallAfterFrames.push fn
+	cancelFrames: (fn) ->
 
-			null
+		timing._toCancelCallingOnFrame.push fn
 
-		cancelAfterFrames: (fn) ->
+		null
 
-			timing._toCancelCallingAfterFrames.push fn
+	_callFramesScheduledForFrames: (t) ->
 
-			null
+		return if timing._toCallOnFrames.length < 1
 
-		_callAfterFrames: (t) ->
+		for toCancel in timing._toCancelCallingOnFrame
 
-			return if timing._toCallAfterFrames.length < 1
+			array.pluckOneItem timing._toCallOnFrames, toCancel
 
-			for toCancel in timing._toCancelCallingAfterFrames
+		timing._toCancelCallingOnFrame.length = 0
 
-				array.pluckOneItem timing._toCallAfterFrames, toCancel
+		for fn in timing._toCallOnFrames
 
-			timing._toCancelCallingAfterFrames.length = 0
+			fn t
 
-			for fn in timing._toCallAfterFrames
+		return
 
-				fn t
+	_toCallAfterFrames: []
 
-			null
+	_toCancelCallingAfterFrames: []
 
-		__shouldInjectCallItem: (itemA, itemB, itemToInject) ->
+	afterFrames: (fn) ->
 
-			unless itemA?
+		timing._toCallAfterFrames.push fn
 
-				return yes if itemToInject.time <= itemB.time
+		null
 
-				return no
+	cancelAfterFrames: (fn) ->
 
-			unless itemB?
+		timing._toCancelCallingAfterFrames.push fn
 
-				return yes if itemA.time <= itemToInject.time
+		null
 
-				return no
+	_callAfterFrames: (t) ->
 
-			return yes if itemA.time <= itemToInject.time <= itemB.time
+		return if timing._toCallAfterFrames.length < 1
+
+		for toCancel in timing._toCancelCallingAfterFrames
+
+			array.pluckOneItem timing._toCallAfterFrames, toCancel
+
+		timing._toCancelCallingAfterFrames.length = 0
+
+		for fn in timing._toCallAfterFrames
+
+			fn t
+
+		null
+
+	__shouldInjectCallItem: (itemA, itemB, itemToInject) ->
+
+		unless itemA?
+
+			return yes if itemToInject.time <= itemB.time
 
 			return no
 
-		_waitCallbacks: []
+		unless itemB?
 
-		wait: (ms, fn) ->
+			return yes if itemA.time <= itemToInject.time
 
-			callTime = timing.timeInMs + ms + 8
+			return no
 
-			item = timeoutPool.give callTime, fn
+		return yes if itemA.time <= itemToInject.time <= itemB.time
 
-			array.injectByCallback timing._waitCallbacks, item, timing.__shouldInjectCallItem
+		return no
 
-			null
+	_waitCallbacks: []
 
-		_callWaiters: (t) ->
+	wait: (ms, fn) ->
+
+		callTime = timing.timeInMs + ms + 8
+
+		item = timeoutPool.give callTime, fn
+
+		array.injectByCallback timing._waitCallbacks, item, timing.__shouldInjectCallItem
+
+		null
+
+	_callWaiters: (t) ->
+
+		return if timing._waitCallbacks.length < 1
+
+		loop
 
 			return if timing._waitCallbacks.length < 1
 
-			loop
+			item = timing._waitCallbacks[0]
 
-				return if timing._waitCallbacks.length < 1
+			return if item.time > timing.timeInMs
 
-				item = timing._waitCallbacks[0]
+			timeoutPool.take item
 
-				return if item.time > timing.timeInMs
+			timing._waitCallbacks.shift()
 
-				timeoutPool.take item
+			item.fn t
 
-				timing._waitCallbacks.shift()
+		null
+
+	_intervals: []
+
+	_toRemoveFromIntervals: []
+
+	every: (ms, fn) ->
+
+		timing._intervals.push intervalPool.give ms, timing.timeInMs, 0, fn
+
+		null
+
+	cancelEvery: (fn) ->
+
+		timing._toRemoveFromIntervals.push fn
+
+		null
+
+	_callIntervals: ->
+
+		return if timing._intervals.length < 1
+
+		t = timing.timeInMs
+
+		for fnToRemove in timing._toRemoveFromIntervals
+
+			array.pluckByCallback timing._intervals, (item) ->
+
+				return yes if item.fn is fnToRemove
+				return no
+
+		for item in timing._intervals
+
+			properTimeToCall = item.from + (item.timesCalled * item.every) + item.every
+
+			if properTimeToCall <= t
 
 				item.fn t
 
-			null
+				item.timesCalled++
 
-		_intervals: []
+		return
 
-		_toRemoveFromIntervals: []
+	_theLoop: (t) ->
 
-		every: (ms, fn) ->
+		t = t * timing.speed
 
-			timing._intervals.push intervalPool.give ms, timing.timeInMs, 0, fn
+		_nextFrame timing._theLoop
 
-			null
+		timing.time = t
 
-		cancelEvery: (fn) ->
+		t = parseInt t
 
-			timing._toRemoveFromIntervals.push fn
+		timing.timeInMs = t
 
-			null
+		timing._callFramesScheduledForFrame t
 
-		_callIntervals: ->
+		timing._callFramesScheduledForFrames t
 
-			return if timing._intervals.length < 1
+		timing._callAfterFrames t
 
-			t = timing.timeInMs
+		timing._callFramesScheduledForAfterFrame t
 
-			for fnToRemove in timing._toRemoveFromIntervals
+		timing._callWaiters t
 
-				array.pluckByCallback timing._intervals, (item) ->
+		timing._callIntervals t
 
-					return yes if item.fn is fnToRemove
-					return no
+		null
 
-			for item in timing._intervals
+	start: ->
 
-				properTimeToCall = item.from + (item.timesCalled * item.every) + item.every
+		_nextFrame timing._theLoop
 
-				if properTimeToCall <= t
+		null
 
-					item.fn t
+timing.dontStart = do ->
 
-					item.timesCalled++
+	frame = _nextFrame ->
 
-			return
+		timing.start()
 
-		_theLoop: (t) ->
+	dontStart = ->
 
-			t = t * timing.speed
+		_cancelNextFrame frame
 
-			_nextFrame timing._theLoop
-
-			timing.time = t
-
-			t = parseInt t
-
-			timing.timeInMs = t
-
-			timing._callFramesScheduledForFrame t
-
-			timing._callFramesScheduledForFrames t
-
-			timing._callAfterFrames t
-
-			timing._callFramesScheduledForAfterFrame t
-
-			timing._callWaiters t
-
-			timing._callIntervals t
-
-			null
-
-		start: ->
-
-			_nextFrame timing._theLoop
-
-			null
-
-	timing.dontStart = do ->
-
-		frame = _nextFrame ->
-
-			timing.start()
-
-		dontStart = ->
-
-			_cancelNextFrame frame
-
-	timing
+timing

@@ -1,6 +1,4 @@
-if typeof define isnt 'function' then define = require('amdefine')(module)
-
-define -> common =
+module.exports = common =
 
 	###
 	Checks to see if o is an object, and it isn't an instance

@@ -1,275 +1,273 @@
-define [
-	'./styleSetter/StyleSetter'
-	'./transitioner/Transitioner'
-	'../../timing/timing'
-], (StyleSetter, Transitioner, timing) ->
+StyleSetter = require './styleSetter/StyleSetter'
+Transitioner = require './transitioner/Transitioner'
+timing = require '../../timing/timing'
 
-	class Styles
+module.exports = class Styles
 
-		__initMixinHasStyles: ->
+	__initMixinHasStyles: ->
 
-			@_styleSetter = new StyleSetter @
+		@_styleSetter = new StyleSetter @
 
-			@_transitioner = new Transitioner @
+		@_transitioner = new Transitioner @
 
-			@fill = @_styleSetter.fill
+		@fill = @_styleSetter.fill
 
-			@_styleInterface = @_styleSetter
+		@_styleInterface = @_styleSetter
 
-			@_updaterDeployed = no
+		@_updaterDeployed = no
 
-			@_shouldUpdate = no
+		@_shouldUpdate = no
 
-			@_updaterCallback = @_getNewUpdaterCallback()
+		@_updaterCallback = @_getNewUpdaterCallback()
 
-			@_lastTimeUpdated = 0
+		@_lastTimeUpdated = 0
 
-			return
+		return
 
-		_getNewUpdaterCallback: ->
+	_getNewUpdaterCallback: ->
 
-			(t) => @_doUpdate t
+		(t) => @_doUpdate t
 
-		_scheduleUpdate: ->
+	_scheduleUpdate: ->
 
-			@_shouldUpdate = yes
+		@_shouldUpdate = yes
 
-			do @_deployUpdater
+		do @_deployUpdater
 
-			return
+		return
 
-		_deployUpdater: ->
+	_deployUpdater: ->
 
-			return if @_updaterDeployed
+		return if @_updaterDeployed
 
-			@_updaterDeployed = yes
+		@_updaterDeployed = yes
 
-			timing.afterFrames @_updaterCallback
+		timing.afterFrames @_updaterCallback
 
-		_undeployUpdater: ->
+	_undeployUpdater: ->
 
-			return unless @_updaterDeployed
+		return unless @_updaterDeployed
 
-			@_updaterDeployed = no
+		@_updaterDeployed = no
 
-			timing.cancelAfterFrames @_updaterCallback
+		timing.cancelAfterFrames @_updaterCallback
 
-		_doUpdate: (t) ->
+	_doUpdate: (t) ->
 
-			unless @_shouldUpdate
+		unless @_shouldUpdate
 
-				if t - @_lastTimeUpdated > 100
+			if t - @_lastTimeUpdated > 100
 
-					do @_undeployUpdater
-
-				return
-
-			@_lastTimeUpdated = t
-
-			@_shouldUpdate = no
-
-			do @_transitioner._updateTransition
-
-			do @_styleSetter._updateTransforms
-
-			do @_styleSetter._updateFilters
+				do @_undeployUpdater
 
 			return
 
-		__clonerForHasStyles: (newEl) ->
+		@_lastTimeUpdated = t
 
-			newEl._styleSetter = @_styleSetter.clone newEl
-			newEl.fill = newEl._styleSetter.fill
-			newEl._transitioner = @_transitioner.clone newEl
+		@_shouldUpdate = no
 
-			newEl._updaterDeployed = no
+		do @_transitioner._updateTransition
 
-			newEl._shouldUpdate = no
+		do @_styleSetter._updateTransforms
 
-			newEl._updaterCallback = newEl._getNewUpdaterCallback()
+		do @_styleSetter._updateFilters
 
-			newEl._lastTimeUpdated
+		return
 
-			if @_styleInterface is @_styleSetter
+	__clonerForHasStyles: (newEl) ->
 
-				newEl._styleInterface = newEl._styleSetter
+		newEl._styleSetter = @_styleSetter.clone newEl
+		newEl.fill = newEl._styleSetter.fill
+		newEl._transitioner = @_transitioner.clone newEl
 
-			else
+		newEl._updaterDeployed = no
 
-				newEl._styleInterface = newEl._transitioner
+		newEl._shouldUpdate = no
 
-			return
+		newEl._updaterCallback = newEl._getNewUpdaterCallback()
 
-		__quitterForHasStyles: ->
+		newEl._lastTimeUpdated
 
-			do @_undeployUpdater
+		if @_styleInterface is @_styleSetter
 
-		enableTransition: (duration) ->
+			newEl._styleInterface = newEl._styleSetter
 
-			# console.log 'enable'
+		else
 
-			@_styleInterface = @_transitioner
+			newEl._styleInterface = newEl._transitioner
 
-			@_transitioner.enable duration
+		return
 
-			@
+	__quitterForHasStyles: ->
 
-		disableTransition: ->
+		do @_undeployUpdater
 
-			@_styleInterface = @_styleSetter
+	enableTransition: (duration) ->
 
-			do @_transitioner.disable
+		# console.log 'enable'
 
-			@
+		@_styleInterface = @_transitioner
 
-		trans: (duration) -> @enableTransition duration
+		@_transitioner.enable duration
 
-		noTrans: -> do @disableTransition
+		@
 
-		ease: (funcNameOrFirstNumOfCubicBezier, secondNum, thirdNum, fourthNum) ->
+	disableTransition: ->
 
-			@_transitioner.ease funcNameOrFirstNumOfCubicBezier, secondNum, thirdNum, fourthNum
+		@_styleInterface = @_styleSetter
 
-			@
+		do @_transitioner.disable
 
-	ClassPrototype = Styles.prototype
+		@
 
-	for methodName, method of Transitioner.prototype
+	trans: (duration) -> @enableTransition duration
 
-		continue unless method instanceof Function
+	noTrans: -> do @disableTransition
 
-		continue if ClassPrototype[methodName]?
+	ease: (funcNameOrFirstNumOfCubicBezier, secondNum, thirdNum, fourthNum) ->
 
-		continue if methodName[0] is '_'
+		@_transitioner.ease funcNameOrFirstNumOfCubicBezier, secondNum, thirdNum, fourthNum
 
-		continue if methodName.substr(0, 3) is 'get'
+		@
 
-		do ->
+ClassPrototype = Styles.prototype
 
-			_methodName = methodName
+for methodName, method of Transitioner.prototype
 
-			if method.length is 0
+	continue unless method instanceof Function
 
-				ClassPrototype[_methodName] = ->
+	continue if ClassPrototype[methodName]?
 
-					# This is more performant than method.apply()
-					#
-					# Argument splats won't work here though.
-					@_styleInterface[_methodName]()
+	continue if methodName[0] is '_'
 
-					@
+	continue if methodName.substr(0, 3) is 'get'
 
-			else if method.length is 1
+	do ->
 
-				ClassPrototype[_methodName] = (arg0) ->
+		_methodName = methodName
 
-					@_styleInterface[_methodName] arg0
+		if method.length is 0
 
-					@
+			ClassPrototype[_methodName] = ->
 
-			else if method.length is 2
+				# This is more performant than method.apply()
+				#
+				# Argument splats won't work here though.
+				@_styleInterface[_methodName]()
 
-				ClassPrototype[_methodName] = (arg0, arg1) ->
+				@
 
-					@_styleInterface[_methodName] arg0, arg1
+		else if method.length is 1
 
-					@
+			ClassPrototype[_methodName] = (arg0) ->
 
-			else if method.length is 3
+				@_styleInterface[_methodName] arg0
 
-				ClassPrototype[_methodName] = (arg0, arg1, arg2) ->
+				@
 
-					@_styleInterface[_methodName] arg0, arg1, arg2
+		else if method.length is 2
 
-					@
+			ClassPrototype[_methodName] = (arg0, arg1) ->
 
-			else if method.length is 4
+				@_styleInterface[_methodName] arg0, arg1
 
-				ClassPrototype[_methodName] = (arg0, arg1, arg2, arg3) ->
+				@
 
-					@_styleInterface[_methodName] arg0, arg1, arg2, arg3
+		else if method.length is 3
 
-					@
+			ClassPrototype[_methodName] = (arg0, arg1, arg2) ->
 
-			else if method.length is 5
+				@_styleInterface[_methodName] arg0, arg1, arg2
 
-				ClassPrototype[_methodName] = (arg0, arg1, arg2, arg3, arg4) ->
+				@
 
-					@_styleInterface[_methodName] arg0, arg1, arg2, arg3, arg4
+		else if method.length is 4
 
-					@
+			ClassPrototype[_methodName] = (arg0, arg1, arg2, arg3) ->
 
-			else
+				@_styleInterface[_methodName] arg0, arg1, arg2, arg3
 
-				throw Error "Methods with more than 5 args are not supported."
+				@
 
-	for methodName, method of StyleSetter.prototype
+		else if method.length is 5
 
-		continue unless method instanceof Function
+			ClassPrototype[_methodName] = (arg0, arg1, arg2, arg3, arg4) ->
 
-		continue if ClassPrototype[methodName]?
+				@_styleInterface[_methodName] arg0, arg1, arg2, arg3, arg4
 
-		continue if methodName[0] is '_'
+				@
 
-		continue if methodName.substr(0, 3) is 'get'
+		else
 
-		do ->
+			throw Error "Methods with more than 5 args are not supported."
 
-			_methodName = methodName
+for methodName, method of StyleSetter.prototype
 
-			if method.length is 0
+	continue unless method instanceof Function
 
-				ClassPrototype[_methodName] = ->
+	continue if ClassPrototype[methodName]?
 
-					# This is more performant than method.apply()
-					#
-					# Argument splats won't work here though.
-					@_styleSetter[_methodName]()
+	continue if methodName[0] is '_'
 
-					@
+	continue if methodName.substr(0, 3) is 'get'
 
-			else if method.length is 1
+	do ->
 
-				ClassPrototype[_methodName] = (arg0) ->
+		_methodName = methodName
 
-					@_styleSetter[_methodName] arg0
+		if method.length is 0
 
-					@
+			ClassPrototype[_methodName] = ->
 
-			else if method.length is 2
+				# This is more performant than method.apply()
+				#
+				# Argument splats won't work here though.
+				@_styleSetter[_methodName]()
 
-				ClassPrototype[_methodName] = (arg0, arg1) ->
+				@
 
-					@_styleSetter[_methodName] arg0, arg1
+		else if method.length is 1
 
-					@
+			ClassPrototype[_methodName] = (arg0) ->
 
-			else if method.length is 3
+				@_styleSetter[_methodName] arg0
 
-				ClassPrototype[_methodName] = (arg0, arg1, arg2) ->
+				@
 
-					@_styleSetter[_methodName] arg0, arg1, arg2
+		else if method.length is 2
 
-					@
+			ClassPrototype[_methodName] = (arg0, arg1) ->
 
-			else if method.length is 4
+				@_styleSetter[_methodName] arg0, arg1
 
-				ClassPrototype[_methodName] = (arg0, arg1, arg2, arg3) ->
+				@
 
-					@_styleSetter[_methodName] arg0, arg1, arg2, arg3
+		else if method.length is 3
 
-					@
+			ClassPrototype[_methodName] = (arg0, arg1, arg2) ->
 
-			else if method.length is 5
+				@_styleSetter[_methodName] arg0, arg1, arg2
 
-				ClassPrototype[_methodName] = (arg0, arg1, arg2, arg3, arg4) ->
+				@
 
-					@_styleSetter[_methodName] arg0, arg1, arg2, arg3, arg4
+		else if method.length is 4
 
-					@
+			ClassPrototype[_methodName] = (arg0, arg1, arg2, arg3) ->
 
-			else
+				@_styleSetter[_methodName] arg0, arg1, arg2, arg3
 
-				throw Error "Methods with more than 5 args are not supported."
+				@
 
-	Styles
+		else if method.length is 5
+
+			ClassPrototype[_methodName] = (arg0, arg1, arg2, arg3, arg4) ->
+
+				@_styleSetter[_methodName] arg0, arg1, arg2, arg3, arg4
+
+				@
+
+		else
+
+			throw Error "Methods with more than 5 args are not supported."
+
+Styles

@@ -1,102 +1,100 @@
-define [
-	'../../../../utility/css'
-	'../tools/ColorHolder'
-], (css, ColorHolder) ->
+css = require '../../../../utility/css'
+ColorHolder = require '../tools/ColorHolder'
 
-	class Fill_
+module.exports = class Fill_
 
-		__initMixinFill: ->
+	__initMixinFill: ->
 
-			@fill = new ColorHolder @_getFillUpdater()
+		@fill = new ColorHolder @_getFillUpdater()
 
-			@_fill =
+		@_fill =
 
-				bgColor: 'none'
+			bgColor: 'none'
 
-				color: 'inherit'
+			color: 'inherit'
 
-				border: 'none'
+			border: 'none'
 
-				opacity: 1
+			opacity: 1
 
-		__clonerForFill: (newStyleSetter) ->
+	__clonerForFill: (newStyleSetter) ->
 
-			newStyleSetter.fill = @fill.clone newStyleSetter._getFillUpdater()
+		newStyleSetter.fill = @fill.clone newStyleSetter._getFillUpdater()
+
+		return
+
+	_getFillUpdater: ->
+
+		=>
+
+			do @_updateFill
 
 			return
 
-		_getFillUpdater: ->
+	_updateFill: ->
 
-			=>
+		@_styles.backgroundColor = @_fill.bgColor = @fill._color.toCss()
 
-				do @_updateFill
+		@
 
-				return
+	rotateFillHue: (amount) ->
 
-		_updateFill: ->
+		@_fill.bgColor.rotateHue amount
 
-			@_styles.backgroundColor = @_fill.bgColor = @fill._color.toCss()
+		@_styles.backgroundColor = @_fill.bgColor.toCss()
 
-			@
+	setTextColor: (r, g, b) ->
 
-		rotateFillHue: (amount) ->
+		@_styles.color = @_fill.color = css.rgb r, g, b
 
-			@_fill.bgColor.rotateHue amount
+		null
 
-			@_styles.backgroundColor = @_fill.bgColor.toCss()
+	makeHollow: ->
 
-		setTextColor: (r, g, b) ->
+		@_styles.bgColor = @_fill.bgColor = 'transparent'
 
-			@_styles.color = @_fill.color = css.rgb r, g, b
+	texturize: (filename) ->
 
-			null
+		addr = "./images/#{filename}"
 
-		makeHollow: ->
+		@_styles.background = 'url(' + addr + ')'
 
-			@_styles.bgColor = @_fill.bgColor = 'transparent'
+		@
 
-		texturize: (filename) ->
+	setTexturePosition: (x, y) ->
 
-			addr = "./images/#{filename}"
+		@_styles.backgroundPosition = "#{x}px #{y}px"
 
-			@_styles.background = 'url(' + addr + ')'
+		@
 
-			@
+	setBorder: (thickness, r, g, b) ->
 
-		setTexturePosition: (x, y) ->
-
-			@_styles.backgroundPosition = "#{x}px #{y}px"
-
-			@
-
-		setBorder: (thickness, r, g, b) ->
-
-			unless thickness?
-
-				@_styles.border = @_fill.border = 'none'
-
-			else
-
-				@_styles.border = @_fill.border = "#{thickness}px solid #{css.rgb(r, g, b)}"
-
-			@
-
-		removeBorder: ->
+		unless thickness?
 
 			@_styles.border = @_fill.border = 'none'
 
-			@
+		else
 
-		setOpacity: (d) ->
+			@_styles.border = @_fill.border = "#{thickness}px solid #{css.rgb(r, g, b)}"
 
-			@_styles.opacity = @_fill.opacity = d
+		@
 
-			@
+	removeBorder: ->
 
-		adjustOpacity: (d) ->
+		@_styles.border = @_fill.border = 'none'
 
-			@_fill.opacity += d;
+		@
 
-			@_styles.opacity = @_fill.opacity
+	setOpacity: (d) ->
 
-			@
+		@_styles.opacity = @_fill.opacity = d
+
+		@
+
+	adjustOpacity: (d) ->
+
+		@_fill.opacity += d;
+
+		@_styles.opacity = @_fill.opacity
+
+		@

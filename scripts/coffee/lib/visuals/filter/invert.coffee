@@ -1,9 +1,5 @@
-if typeof define isnt 'function' then define = require('amdefine')(module)
+module.exports = invert =
 
-define ->
+	toCss: (amount) ->
 
-	invert = 
-
-		toCss: (amount) ->
-
-			"invert(#{amount}%)"
+		"invert(#{amount}%)"

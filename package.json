@@ -1,0 +1,30 @@
+{
+  "name": "foxie",
+  "version": "0.1.0",
+  "description": "DOM nodes gone bendie",
+  "main": "scripts/js/lib/Foxie.js",
+  "scripts": {
+  },
+  "devDependencies": {
+    "coffee-script": "~1.6.3"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublish": "node ./node_modules/coffee-script/bin/cake build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AriaMinaei/Foxie"
+  },
+  "keywords": [
+    "dom",
+    "html",
+    "animation",
+    "css"
+  ],
+  "author": "Aria Minaei",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AriaMinaei/Foxie/issues"
+  }
+}

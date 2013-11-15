@@ -1,118 +1,118 @@
-define ['../../../../utility/css/Color'], (CSSColor) ->
+CSSColor = require '../../../../utility/css/Color'
 
-	class ColorHolder
+module.exports = class ColorHolder
 
-		constructor: (@_callback) ->
+	constructor: (@_callback) ->
 
-			@_color = new CSSColor
+		@_color = new CSSColor
 
-		withRgb: (r, g, b) ->
+	withRgb: (r, g, b) ->
 
-			@_color.fromRgb r, g, b
+		@_color.fromRgb r, g, b
 
-			do @_callback
+		do @_callback
 
-			@
+		@
 
-		withHsl: (h, s, l) ->
+	withHsl: (h, s, l) ->
 
-			@_color.fromHsl h, s, l
+		@_color.fromHsl h, s, l
 
-			do @_callback
+		do @_callback
 
-			@
+		@
 
-		clone: (callback) ->
+	clone: (callback) ->
 
-			newObj = Object.create @constructor::
+		newObj = Object.create @constructor::
 
-			newObj._color = @_color.clone()
+		newObj._color = @_color.clone()
 
-			newObj._callback = callback
+		newObj._callback = callback
 
-			newObj
+		newObj
 
-	ClassPrototype = ColorHolder.prototype
+ClassPrototype = ColorHolder.prototype
 
-	for methodName, method of CSSColor.prototype
+for methodName, method of CSSColor.prototype
 
-		continue unless method instanceof Function
+	continue unless method instanceof Function
 
-		continue if ClassPrototype[methodName]?
+	continue if ClassPrototype[methodName]?
 
-		continue if methodName[0] is '_'
+	continue if methodName[0] is '_'
 
-		continue if methodName.substr(0, 2) is 'to'
+	continue if methodName.substr(0, 2) is 'to'
 
-		do ->
+	do ->
 
-			_methodName = methodName
+		_methodName = methodName
 
-			if method.length is 0
+		if method.length is 0
 
-				ClassPrototype[_methodName] =  ->
+			ClassPrototype[_methodName] =  ->
 
-					# This is more performant than method.apply()
-					#
-					# Argument splats won't work here though.
-					@_color[_methodName]()
+				# This is more performant than method.apply()
+				#
+				# Argument splats won't work here though.
+				@_color[_methodName]()
 
-					do @_callback
+				do @_callback
 
-					@
+				@
 
-			else if method.length is 1
+		else if method.length is 1
 
-				ClassPrototype[_methodName] = (arg0) ->
+			ClassPrototype[_methodName] = (arg0) ->
 
-					@_color[_methodName] arg0
+				@_color[_methodName] arg0
 
-					do @_callback
+				do @_callback
 
-					@
+				@
 
-			else if method.length is 2
+		else if method.length is 2
 
-				ClassPrototype[_methodName] = (arg0, arg1) ->
+			ClassPrototype[_methodName] = (arg0, arg1) ->
 
-					@_color[_methodName] arg0, arg1
+				@_color[_methodName] arg0, arg1
 
-					do @_callback
+				do @_callback
 
-					@
+				@
 
-			else if method.length is 3
+		else if method.length is 3
 
-				ClassPrototype[_methodName] = (arg0, arg1, arg2) ->
+			ClassPrototype[_methodName] = (arg0, arg1, arg2) ->
 
-					@_color[_methodName] arg0, arg1, arg2
+				@_color[_methodName] arg0, arg1, arg2
 
-					do @_callback
+				do @_callback
 
-					@
+				@
 
-			else if method.length is 4
+		else if method.length is 4
 
-				ClassPrototype[_methodName] = (arg0, arg1, arg2, arg3) ->
+			ClassPrototype[_methodName] = (arg0, arg1, arg2, arg3) ->
 
-					@_color[_methodName] arg0, arg1, arg2, arg3
+				@_color[_methodName] arg0, arg1, arg2, arg3
 
-					do @_callback
+				do @_callback
 
-					@
+				@
 
-			else if method.length is 5
+		else if method.length is 5
 
-				ClassPrototype[_methodName] = (arg0, arg1, arg2, arg3, arg4) ->
+			ClassPrototype[_methodName] = (arg0, arg1, arg2, arg3, arg4) ->
 
-					@_color[_methodName] arg0, arg1, arg2, arg3, arg4
+				@_color[_methodName] arg0, arg1, arg2, arg3, arg4
 
-					do @_callback
+				do @_callback
 
-					@
+				@
 
-			else
+		else
 
-				throw Error "Methods with more than 5 args are not supported."
+			throw Error "Methods with more than 5 args are not supported."
 
-	ColorHolder
+ColorHolder

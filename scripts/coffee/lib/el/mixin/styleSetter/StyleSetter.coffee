@@ -1,44 +1,42 @@
-define [
-	'./mixin/Generals_'
-	'./mixin/Layout_'
-	'./mixin/Fill_'
-	'./mixin/Typography_'
-	'./mixin/Transforms_'
-	'./mixin/Filters_'
-	'../../../utility/object'
-	'../../../utility/classic'
-], (Generals_, Layout_, Fill_, Typography_, Transforms_, Filters_, object, classic) ->
+Generals_ = require './mixin/Generals_'
+Layout_ = require './mixin/Layout_'
+Fill_ = require './mixin/Fill_'
+Typography_ = require './mixin/Typography_'
+Transforms_ = require './mixin/Transforms_'
+Filters_ = require './mixin/Filters_'
+object = require '../../../utility/object'
+classic = require '../../../utility/classic'
 
-	classic.mix Generals_, Layout_, Fill_, Typography_, Transforms_, Filters_, class StyleSetter
+module.exports = classic.mix Generals_, Layout_, Fill_, Typography_, Transforms_, Filters_, class StyleSetter
 
-		constructor: (@el) ->
+	constructor: (@el) ->
 
-			@node = @el.node
+		@node = @el.node
 
-			@_styles = @node.style
+		@_styles = @node.style
 
-			StyleSetter.__initMixinsFor @
+		StyleSetter.__initMixinsFor @
 
-		_scheduleUpdate: ->
+	_scheduleUpdate: ->
 
-			do @el._scheduleUpdate
+		do @el._scheduleUpdate
 
-		clone: (el) ->
+	clone: (el) ->
 
-			newObj = Object.create @constructor::
+		newObj = Object.create @constructor::
 
-			newObj.el = el
-			newObj.node = el.node
-			newObj._styles = el.node.style
+		newObj.el = el
+		newObj.node = el.node
+		newObj._styles = el.node.style
 
-			StyleSetter.__applyClonersFor @, [newObj]
+		StyleSetter.__applyClonersFor @, [newObj]
 
-			for key of @
+		for key of @
 
-				continue if newObj[key] isnt undefined
+			continue if newObj[key] isnt undefined
 
-				if @hasOwnProperty key
+			if @hasOwnProperty key
 
-					newObj[key] = object.clone @[key], yes
+				newObj[key] = object.clone @[key], yes
 
-			newObj
+		newObj

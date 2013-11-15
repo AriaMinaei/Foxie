@@ -1,9 +1,5 @@
-if typeof define isnt 'function' then define = require('amdefine')(module)
+module.exports = opacity =
 
-define ->
+	toCss: (amount) ->
 
-	opacity = 
-
-		toCss: (amount) ->
-
-			"opacity(#{amount}%)"
+		"opacity(#{amount}%)"

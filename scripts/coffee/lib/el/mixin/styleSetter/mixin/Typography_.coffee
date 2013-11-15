@@ -1,151 +1,149 @@
-define [
-	'../../../../utility/css'
-], (css) ->
+css = require '../../../../utility/css'
 
-	class Typography_
+module.exports = class Typography_
 
-		__initMixinTypography: ->
+	__initMixinTypography: ->
 
-			@_type =
+		@_type =
 
-				face: Typography_.defaultFace
+			face: Typography_.defaultFace
 
-				size: Typography_.defaultSize
+			size: Typography_.defaultSize
 
-				color: Typography_.defaultColor
+			color: Typography_.defaultColor
 
-			@_sizeSet = no
+		@_sizeSet = no
 
-			return
+		return
 
-		_getSize: ->
+	_getSize: ->
 
-			unless @_sizeSet
+		unless @_sizeSet
 
-				@_type.size = parseFloat(getComputedStyle(@node).fontSize)
+			@_type.size = parseFloat(getComputedStyle(@node).fontSize)
 
-				@_sizeSet = yes
+			@_sizeSet = yes
 
-			@_type.size
+		@_type.size
 
-		_initTypography: ->
+	_initTypography: ->
 
-			do @setSize
-			do @setFace
-			do @setColor
+		do @setSize
+		do @setFace
+		do @setColor
 
-		setFace: (face) ->
+	setFace: (face) ->
 
-			unless face
+		unless face
 
-				@_type.face = Typography_.defaultFace
+			@_type.face = Typography_.defaultFace
 
-			else
+		else
 
-				@_type.face = face
+			@_type.face = face
 
-			do @_applyFace
+		do @_applyFace
 
-			@
+		@
 
-		_applyFace: ->
+	_applyFace: ->
 
-			@_styles.fontFamily = @_type.face
+		@_styles.fontFamily = @_type.face
 
-			@
+		@
 
-		setSize: (size) ->
+	setSize: (size) ->
 
-			unless size
+		unless size
 
-				@_type.size = Typography_.defaultSize
+			@_type.size = Typography_.defaultSize
 
-			else
+		else
 
-				@_type.size = size
+			@_type.size = size
 
-			do @_applySize
+		do @_applySize
 
-			@
+		@
 
-		_applySize: ->
+	_applySize: ->
 
-			@_styles.fontSize = @_type.size + 'px'
+		@_styles.fontSize = @_type.size + 'px'
 
-			@
+		@
 
-		setColor: (r, g, b) ->
+	setColor: (r, g, b) ->
 
-			if arguments.length is 0
+		if arguments.length is 0
 
-				@_type.color = Typography_.defaultColor
+			@_type.color = Typography_.defaultColor
 
-			else
+		else
 
-				@_type.color = css.rgb(r, g, b)
+			@_type.color = css.rgb(r, g, b)
 
-			do @_applyColor
+		do @_applyColor
 
-			@
+		@
 
-		_applyColor: ->
+	_applyColor: ->
 
-			@_styles.color = @_type.color
+		@_styles.color = @_type.color
 
-			do @_applyStroke
+		do @_applyStroke
 
-			@
+		@
 
-		_applyStroke: ->
+	_applyStroke: ->
 
-			if Typography_.needsTextStroke() and @_getSize() < 50
+		if Typography_.needsTextStroke() and @_getSize() < 50
 
 
 
-				@_styles.webkitTextStroke = '1.5 ' + @_type.color
+			@_styles.webkitTextStroke = '1.5 ' + @_type.color
 
-			@
+		@
 
-		@defaultFace = '"HelveticaNeueLT Std Thin"'
+	@defaultFace = '"HelveticaNeueLT Std Thin"'
 
-		@setDefaultFace: (face = "HelveticaNeueLT Std Thin") ->
+	@setDefaultFace: (face = "HelveticaNeueLT Std Thin") ->
 
-			@defaultFace = face
+		@defaultFace = face
 
-		@defaultSize = 36
+	@defaultSize = 36
 
-		@setDefaultSize: (size = 36) ->
+	@setDefaultSize: (size = 36) ->
 
-			@defaultSize = size
+		@defaultSize = size
 
-		@defaultColor = css.rgb(255, 255, 255)
+	@defaultColor = css.rgb(255, 255, 255)
 
-		@setDefaultColor: (r, g, b) ->
+	@setDefaultColor: (r, g, b) ->
 
-			if arguments.length is 0
+		if arguments.length is 0
 
-				@defaultColor = css.rgb(255, 255, 255)
+			@defaultColor = css.rgb(255, 255, 255)
 
-			@defaultColor = css.rgb(r, g, b)
+		@defaultColor = css.rgb(r, g, b)
 
-		# As long as chrome hasn't implemented DirectWrite, text won't look
-		# its best on windows. This function will tell you if you need to
-		# apply a -webkit-text-stroke to make text look a bit smoother on
-		# chrome/win.
-		@needsTextStroke: do ->
+	# As long as chrome hasn't implemented DirectWrite, text won't look
+	# its best on windows. This function will tell you if you need to
+	# apply a -webkit-text-stroke to make text look a bit smoother on
+	# chrome/win.
+	@needsTextStroke: do ->
 
-			_needsTextStroke = null
+		_needsTextStroke = null
 
-			->
+		->
 
-				if _needsTextStroke is null
+			if _needsTextStroke is null
 
-					if navigator.appVersion.indexOf('Chrome') isnt -1 and navigator.appVersion.indexOf('Windows') isnt -1
+				if navigator.appVersion.indexOf('Chrome') isnt -1 and navigator.appVersion.indexOf('Windows') isnt -1
 
-						_needsTextStroke = yes
+					_needsTextStroke = yes
 
-					else
+				else
 
-						_needsTextStroke = no
+					_needsTextStroke = no
 
-				_needsTextStroke
+			_needsTextStroke

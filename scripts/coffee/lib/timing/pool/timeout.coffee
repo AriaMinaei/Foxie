@@ -1,34 +1,32 @@
-define ->
+module.exports = timeoutPool =
 
-	timeoutPool =
+	_pool: []
 
-		_pool: []
+	_getNew: (time, fn) ->
 
-		_getNew: (time, fn) ->
+		{
+			time: time
+			fn: fn
+		}
 
-			{
-				time: time
-				fn: fn
-			}
+	give: (time, fn) ->
 
-		give: (time, fn) ->
+		if @_pool.length > 0
 
-			if @_pool.length > 0
+			item = @_pool.pop()
 
-				item = @_pool.pop()
+			item.time = time
 
-				item.time = time
+			item.fn = fn
 
-				item.fn = fn
+			return item
 
-				return item
+		else
 
-			else
+			return @_getNew time, fn
 
-				return @_getNew time, fn
+	take: (item) ->
 
-		take: (item) ->
+		@_pool.push item
 
-			@_pool.push item
-
-			null
+		null

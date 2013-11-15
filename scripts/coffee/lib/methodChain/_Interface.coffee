@@ -1,7 +1,5 @@
-define ->
+module.exports = class _Interface
 
-	class _Interface
+	constructor: ->
 
-		constructor: ->
-
-			@_queue = []
+		@_queue = []
