@@ -1,9 +1,8 @@
 Fill_ = require './mixin/Fill_'
 Transforms_ = require './mixin/Transforms_'
 timing = require '../../../timing/timing'
-object = require '../../../utility/object'
 easing = require '../../../visuals/animation/easing'
-classic = require '../../../utility/classic'
+{classic, object} = require 'utila'
 
 module.exports = classic.mix Fill_, Transforms_, class Transitioner
 

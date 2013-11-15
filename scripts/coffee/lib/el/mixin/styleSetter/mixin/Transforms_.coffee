@@ -1,11 +1,11 @@
-TypedMatrix = require '../../../../visuals/TypedMatrix'
+Transformation = require 'transformation'
 css = require '../../../../utility/css'
 
 module.exports = class Transforms_
 
 	__initMixinTransforms: ->
 
-		@_transformer = new TypedMatrix
+		@_transformer = new Transformation
 
 		@_origin =
 
@@ -133,7 +133,7 @@ module.exports = class Transforms_
 
 ClassPrototype = Transforms_.prototype
 
-for methodName, method of TypedMatrix.prototype
+for methodName, method of Transformation.prototype
 
 	continue unless method instanceof Function
 

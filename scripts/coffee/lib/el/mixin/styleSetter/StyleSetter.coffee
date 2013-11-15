@@ -4,8 +4,7 @@ Fill_ = require './mixin/Fill_'
 Typography_ = require './mixin/Typography_'
 Transforms_ = require './mixin/Transforms_'
 Filters_ = require './mixin/Filters_'
-object = require '../../../utility/object'
-classic = require '../../../utility/classic'
+{classic, object} = require 'utila'
 
 module.exports = classic.mix Generals_, Layout_, Fill_, Typography_, Transforms_, Filters_, class StyleSetter
 

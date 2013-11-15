@@ -1,4 +1,4 @@
-array = require '../../utility/array'
+{array} = require 'utila'
 timing = require '../../timing/timing'
 
 module.exports = class Timing_

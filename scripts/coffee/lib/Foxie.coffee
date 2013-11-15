@@ -1,12 +1,10 @@
-array = require './utility/array'
 Chain_ = require './el/mixin/Chain_'
 timing = require './timing/timing'
-object = require './utility/object'
 Styles_ = require './el/mixin/Styles_'
 Timing_ = require './el/mixin/Timing_'
-classic = require './utility/classic'
 lazyValues = require './utility/lazyValues'
 Interactions_ = require './el/mixin/Interactions_'
+{classic, object, array} = require 'utila'
 
 module.exports = classic.mix Styles_, Chain_, Timing_, Interactions_, class El
 

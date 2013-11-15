@@ -1,4 +1,4 @@
-array = require '../utility/array'
+{array} = require 'utila'
 timeoutPool = require './pool/timeout'
 intervalPool = require './pool/interval'
 

@@ -1,12 +1,12 @@
-TypedMatrix = require '../../../../visuals/TypedMatrix'
+Transformation = require 'Transformation'
 
 module.exports = class Transforms_
 
 	__initMixinTransforms: ->
 
-		@_toMatrix = TypedMatrix._emptyStack()
+		@_toMatrix = Transformation._emptyStack()
 
-		@_fromMatrix = TypedMatrix._emptyStack()
+		@_fromMatrix = Transformation._emptyStack()
 
 		@_currentMatrix = @el._styleSetter._transformer._current
 
