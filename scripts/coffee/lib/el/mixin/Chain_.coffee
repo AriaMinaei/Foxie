@@ -1,4 +1,4 @@
-MethodChain = require '../../MethodChain/MethodChain'
+MethodChain = require 'method-chain'
 
 module.exports = class Chain_
 
@@ -40,6 +40,7 @@ module.exports = class Chain_
 
 			runCallback =>
 
+				# TODO: lazyValues
 				@_getMethodChain().run _interface, @
 
 			return _interface

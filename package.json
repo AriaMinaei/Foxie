@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "utila": "~0.2.0",
-    "transformation": "~0.1.0"
+    "transformation": "~0.1.0",
+    "method-chain": "~0.1.0"
   }
 }
