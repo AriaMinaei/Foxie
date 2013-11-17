@@ -1,6 +1,6 @@
 StyleSetter = require './styleSetter/StyleSetter'
 Transitioner = require './transitioner/Transitioner'
-timing = require '../../timing/timing'
+timing = require '../../timing'
 
 module.exports = class Styles
 

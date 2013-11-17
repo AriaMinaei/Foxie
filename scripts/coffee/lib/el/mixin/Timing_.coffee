@@ -1,5 +1,5 @@
 {array} = require 'utila'
-timing = require '../../timing/timing'
+timing = require '../../timing'
 
 module.exports = class Timing_
 

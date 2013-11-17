@@ -1,12 +1,14 @@
 Chain_ = require './el/mixin/Chain_'
-timing = require './timing/timing'
+timing = require './timing'
 Styles_ = require './el/mixin/Styles_'
 Timing_ = require './el/mixin/Timing_'
 lazyValues = require './utility/lazyValues'
 Interactions_ = require './el/mixin/Interactions_'
 {classic, object, array} = require 'utila'
 
-module.exports = classic.mix Styles_, Chain_, Timing_, Interactions_, class El
+module.exports = classic.mix Styles_, Chain_, Timing_, Interactions_, class Foxie
+
+	self = @
 
 	@_defaultContainer: null
 
@@ -34,7 +36,7 @@ module.exports = classic.mix Styles_, Chain_, Timing_, Interactions_, class El
 
 			@_shouldCloneInnerHTML = no
 
-		El.__initMixinsFor @
+		self.__initMixinsFor @
 
 		@_beenAppended = no
 
@@ -46,36 +48,36 @@ module.exports = classic.mix Styles_, Chain_, Timing_, Interactions_, class El
 
 			if not @_beenAppended
 
-				if not @node.parentElement? and @node.tagName isnt 'BODY'
+				if not @node.parentselfement? and @node.tagName isnt 'BODY'
 
-					@putIn El._getDefaultContainer()
+					@putIn self._getDefaultContainer()
 
 				else
 
 					@_beenAppended = yes
 
-	clone: (newEl = Object.create @constructor::) ->
+	clone: (newself = Object.create @constructor::) ->
 
 		@_doUpdate()
 
 		# Adding the node
 		newNode = @node.cloneNode()
-		newEl.node = newNode
-		newEl._children = []
+		newself.node = newNode
+		newself._children = []
 
 		# Cloning the children
 		if @_shouldCloneInnerHTML
 
-			newEl.node.innerHTML = @node.innerHTML
+			newself.node.innerHTML = @node.innerHTML
 
 		else
 
 			for child in @_children
 
-				child.clone().putIn newEl
+				child.clone().putIn newself
 
 		# Deciding on the parent
-		newEl._parent = null
+		newself._parent = null
 
 		if @_parent?
 
@@ -83,47 +85,47 @@ module.exports = classic.mix Styles_, Chain_, Timing_, Interactions_, class El
 
 		else
 
-			parent = @node._parent ? @node.parentElement ? null
+			parent = @node._parent ? @node.parentselfement ? null
 
-		newEl._beenAppended = no
+		newself._beenAppended = no
 
 		timing.afterFrame =>
 
-			if not newEl._beenAppended
+			if not newself._beenAppended
 
-				newEl.putIn parent
+				newself.putIn parent
 
 			return
 
-		El.__applyClonersFor @, [newEl]
+		self.__applyClonersFor @, [newself]
 
 		for key, val of @
 
-			continue if newEl[key] isnt undefined
+			continue if newself[key] isnt undefined
 
 			if @hasOwnProperty key
 
-				newEl[key] = object.clone val, yes
+				newself[key] = object.clone val, yes
 
-		newEl
+		newself
 
 	_notYourChildAnymore: (el) ->
 
-		unless el instanceof El
+		unless el instanceof self
 
-			throw Error "`el` must be an instance of `El`"
+			throw Error "`el` must be an instance of `self`"
 
 		array.pluckItem @_children, el
 
 		@
 
-	putIn: (el = El._getDefaultContainer()) ->
+	putIn: (el = self._getDefaultContainer()) ->
 
 		if @_parent?
 
 			@_parent._notYourChildAnymore @
 
-		if el instanceof El
+		if el instanceof self
 
 			el._append @
 			@_parent = el
@@ -151,13 +153,13 @@ module.exports = classic.mix Styles_, Chain_, Timing_, Interactions_, class El
 
 	beDefaultContainer: ->
 
-		El._defaultContainer = @
+		self._defaultContainer = @
 
 		@
 
 	_append: (el) ->
 
-		if el instanceof El
+		if el instanceof self
 
 			node = el.node
 			@_children.push el
@@ -195,7 +197,7 @@ module.exports = classic.mix Styles_, Chain_, Timing_, Interactions_, class El
 			child.quit()
 
 
-		El.__applyQuittersFor @
+		self.__applyQuittersFor @
 
 		return
 
