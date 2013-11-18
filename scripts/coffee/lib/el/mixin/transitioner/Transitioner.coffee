@@ -1,10 +1,11 @@
 Fill_ = require './mixin/Fill_'
 Transforms_ = require './mixin/Transforms_'
+Layout_ = require './mixin/Layout_'
 timing = require '../../../timing'
 easing = require '../../../visuals/animation/easing'
 {classic, object} = require 'utila'
 
-module.exports = classic.mix Fill_, Transforms_, class Transitioner
+module.exports = classic.mix Fill_, Transforms_, Layout_, class Transitioner
 
 	constructor: (@el) ->
 
@@ -26,6 +27,9 @@ module.exports = classic.mix Fill_, Transforms_, class Transitioner
 			transformPerspective: no
 			transformLocalMovement: no
 			opacity: no
+			width: no
+			height: no
+			clip: no
 
 		@_shouldUpdate = no
 
@@ -55,7 +59,10 @@ module.exports = classic.mix Fill_, Transforms_, class Transitioner
 			transformScale: no
 			transformPerspective: no
 			transformLocalMovement: no
+			width: no
+			height: no
 			opacity: no
+			clip: no
 
 		Transitioner.__applyClonersFor @, [newObj]
 
@@ -91,6 +98,7 @@ module.exports = classic.mix Fill_, Transforms_, class Transitioner
 
 		do @_disableTransitionForTransforms
 		do @_disableTransitionForFill
+		do @_disableTransitionForLayout
 
 		return
 
@@ -117,6 +125,8 @@ module.exports = classic.mix Fill_, Transforms_, class Transitioner
 		do @_adjustFromValuesForTransforms
 
 		do @_adjustFromValuesForFill
+
+		do @_adjustFromValuesForLayout
 
 		@
 
@@ -159,6 +169,8 @@ module.exports = classic.mix Fill_, Transforms_, class Transitioner
 		@_updateTransitionForTransforms progress
 
 		@_updateTransitionForFill progress
+
+		@_updateTransitionForLayout progress
 
 		null
 

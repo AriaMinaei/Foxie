@@ -67,8 +67,6 @@ module.exports = class Transforms_
 
 			"#{@_origin.x}px #{@_origin.y}px #{@_origin.z}px"
 
-		do @el._updateAxis
-
 		@
 
 	originToBottom: ->
@@ -126,8 +124,6 @@ module.exports = class Transforms_
 		css.setTransformOrigin @node,
 
 			"#{_x} #{_y}"
-
-		do @el._updateAxis
 
 		@
 

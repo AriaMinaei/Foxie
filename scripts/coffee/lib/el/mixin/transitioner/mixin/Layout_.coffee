@@ -2,46 +2,206 @@ module.exports = class Layout_
 
 	__initMixinLayout: ->
 
-		@_dimsFrom =
+		@_fromLayout =
 
 			width: null
 
 			height: null
 
-		@_dimsTo =
+			clipLeft: 'auto'
+
+			clipRight: 'auto'
+
+			clipTop: 'auto'
+
+			clipBottom: 'auto'
+
+		@_toLayout =
 
 			width: null
 
 			height: null
 
-	setWidth: (w) ->
+			clipLeft: 'auto'
 
-		@_dimsTo.width = w
+			clipRight: 'auto'
 
-		@_dimsFrom.width = @_styleSetter._dims.width
+			clipTop: 'auto'
 
-		@_addUpdater '_updateWidth'
+			clipBottom: 'auto'
 
-		@
+		@_currentLayout = @el._styleSetter._layout
+
+		return
+
+	__clonerForLayout: (newTransitioner) ->
+
+		newTransitioner._currentLayout = newTransitioner.el._styleSetter._layout
+
+		return
+
+	_adjustFromValuesForLayout: ->
+
+		@_fromLayout.width = @_currentLayout.width
+		@_fromLayout.height = @_currentLayout.height
+
+		@_fromLayout.clipTop = @_currentLayout.clipTop
+		@_fromLayout.clipRight = @_currentLayout.clipRight
+		@_fromLayout.clipBottom = @_currentLayout.clipBottom
+		@_fromLayout.clipLeft = @_currentLayout.clipLeft
+
+
+		return
+
+	_disableTransitionForLayout: ->
+
+		@_toLayout.width = @_currentLayout.width
+		@_toLayout.height = @_currentLayout.height
+
+		@_toLayout.clipTop = @_currentLayout.clipTop
+		@_toLayout.clipRight = @_currentLayout.clipRight
+		@_toLayout.clipBottom = @_currentLayout.clipBottom
+		@_toLayout.clipLeft = @_currentLayout.clipLeft
+
+		@_needsUpdate.width = no
+		@_needsUpdate.height = no
+		@_needsUpdate.clip = no
+
+		return
+
+	_updateTransitionForLayout: (progress) ->
+
+		if @_needsUpdate.width
+
+			@_updateWidth progress
+
+		if @_needsUpdate.height
+
+			@_updateHeight progress
+
+		if @_needsUpdate.clip
+
+			@_updateClip progress
+
+		return
+
+	_updateClip: (progress) ->
+
+		@_styleSetter.clip (
+
+			@_fromLayout.clipTop +
+
+				(@_toLayout.clipTop - @_fromLayout.clipTop) * progress),
+
+			(@_fromLayout.clipRight +
+
+				(@_toLayout.clipRight - @_fromLayout.clipRight) * progress),
+
+			(@_fromLayout.clipBottom +
+
+				(@_toLayout.clipBottom - @_fromLayout.clipBottom) * progress),
+
+			(@_fromLayout.clipLeft +
+
+				(@_toLayout.clipLeft - @_fromLayout.clipLeft) * progress)
+
+
+
+		return
 
 	_updateWidth: (progress) ->
 
-		@_styleSetter.setWidth @_dimsFrom.width +
+		@_styleSetter.setWidth (
 
-			( (@_dimsTo.width - @_dimsFrom.width) * progress )
+			@_fromLayout.width +
 
-	setHeight: (h) ->
+			(@_toLayout.width - @_fromLayout.width) * progress
 
-		@_dimsTo.height = h
+		)
 
-		@_dimsFrom.height = @_styleSetter._dims.height
-
-		@_addUpdater '_updateHeight'
-
-		@
+		return
 
 	_updateHeight: (progress) ->
 
-		@_styleSetter.setHeight @_dimsFrom.height +
+		@_styleSetter.setHeight (
 
-			( (@_dimsTo.height - @_dimsFrom.width) * progress )
+			@_fromLayout.height +
+
+			(@_toLayout.height - @_fromLayout.height) * progress
+
+		)
+
+		return
+
+	setWidth: (d) ->
+
+		@_toLayout.width = d
+
+		@_needsUpdate.width = yes
+
+		do @_update
+
+		@
+
+	setHeight: (d) ->
+
+		@_toLayout.height = d
+
+		@_needsUpdate.height = yes
+
+		do @_update
+
+		@
+
+	clip: (t, r, b, l) ->
+
+		@_toLayout.clipTop = t
+		@_toLayout.clipRight = r
+		@_toLayout.clipBottom = b
+		@_toLayout.clipLeft = l
+
+		@_needsUpdate.clip = yes
+
+		do @_update
+
+		@
+
+	clipTop: (t) ->
+
+		@_toLayout.clipTop = t
+
+		@_needsUpdate.clip = yes
+
+		do @_update
+
+		@
+
+	clipRight: (r) ->
+
+		@_toLayout.clipRight = r
+
+		@_needsUpdate.clip = yes
+
+		do @_update
+
+		@
+
+	clipBottom: (b) ->
+
+		@_toLayout.clipBottom = b
+
+		@_needsUpdate.clip = yes
+
+		do @_update
+
+		@
+
+	clipLeft: (l) ->
+
+		@_toLayout.clipLeft = l
+
+		@_needsUpdate.clip = yes
+
+		do @_update
+
+		@

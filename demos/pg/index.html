@@ -8,7 +8,7 @@
 		packages: [{
 			name: 'Foxie',
 			location: '../../scripts/dist',
-			main: '.Foxie'
+			main: 'Foxie'
 		}]
 	});
 	</script>
@@ -48,10 +48,12 @@
 				for (i = 0; i != 60; i++) {
 					el = getNewEl()
 					el.i = i;
+
+					el.clip(0, 0, 0, 0);
 					els.push(el);
 				}
 
-				t = 300;
+				t = 500;
 
 				bringIn = function(){
 					for (i = 0; i < els.length; i++) {
@@ -72,6 +74,9 @@
 					.trans(t)
 					.moveXTo(Math.random() * 600)
 					.moveYTo(el.i * 60 + 5)
+					// .setWidth(360)
+					// .setHeight(360)
+					.clip(0, 45, 45, 0)
 					.setOpacity(1)
 				};
 
