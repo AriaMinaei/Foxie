@@ -6,9 +6,13 @@ lazyValues = require './utility/lazyValues'
 Interactions_ = require './el/mixin/Interactions_'
 {classic, object, array} = require 'utila'
 
+Timing = require 'raf-timing'
+
 module.exports = classic.mix Styles_, Chain_, Timing_, Interactions_, class Foxie
 
 	self = @
+
+	@Timing: Timing
 
 	@_defaultContainer: null
 

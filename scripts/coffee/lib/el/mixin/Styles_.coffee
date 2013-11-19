@@ -42,7 +42,7 @@ module.exports = class Styles
 
 		@_updaterDeployed = yes
 
-		timing.afterFrames @_updaterCallback
+		timing.afterEachFrame @_updaterCallback
 
 	_undeployUpdater: ->
 
@@ -50,7 +50,7 @@ module.exports = class Styles
 
 		@_updaterDeployed = no
 
-		timing.cancelAfterFrames @_updaterCallback
+		timing.cancelAfterEachFrame @_updaterCallback
 
 	_doUpdate: (t) ->
 

@@ -1,6 +1,6 @@
 {
   "name": "foxie",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "DOM nodes gone bendie",
   "main": "scripts/js/lib/Foxie.js",
   "scripts": {
@@ -29,6 +29,6 @@
     "utila": "~0.2.0",
     "transformation": "~0.1.0",
     "method-chain": "~0.1.0",
-    "raf-timing": "~0.2.0"
+    "raf-timing": "~0.3.0"
   }
 }

@@ -104,7 +104,7 @@ module.exports = classic.mix Fill_, Transforms_, Layout_, class Transitioner
 
 	_update: ->
 
-		return if @_startTime is timing.timeInMs
+		return if @_startTime is timing.time
 
 		do @_startOver
 
@@ -112,7 +112,7 @@ module.exports = classic.mix Fill_, Transforms_, Layout_, class Transitioner
 
 	_startOver: ->
 
-		@_startTime = timing.timeInMs
+		@_startTime = timing.time
 
 		do @_adjustFromValues
 
@@ -138,7 +138,7 @@ module.exports = classic.mix Fill_, Transforms_, Layout_, class Transitioner
 
 		return if not @_enabled or not @_shouldUpdate
 
-		@_updateForTime timing.timeInMs
+		@_updateForTime timing.time
 
 	_updateForTime: (t) ->
 

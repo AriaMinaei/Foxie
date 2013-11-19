@@ -55,7 +55,7 @@ module.exports = class Timing_
 
 		@_eventEnabledMethod arguments, (cb) =>
 
-			timing.afterFrame =>
+			timing.nextTick =>
 
 				cb.call @
 
@@ -72,7 +72,7 @@ module.exports = class Timing_
 
 				return if canceled
 
-				timing.cancelFrames theCallback
+				timing.cancelOnEachFrame theCallback
 
 				array.pluckOneItem @_quittersForTiming, canceler
 
@@ -96,7 +96,7 @@ module.exports = class Timing_
 
 				null
 
-			timing.frames theCallback
+			timing.onEachFrame theCallback
 
 	run: ->
 
@@ -154,4 +154,4 @@ module.exports = class Timing_
 
 			timing.every ms, theCallback
 
-			timing.afterFrame theCallback
+			timing.afterNextFrame theCallback
