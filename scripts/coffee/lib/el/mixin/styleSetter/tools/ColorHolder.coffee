@@ -1,4 +1,4 @@
-CSSColor = require '../../../../utility/css/Color'
+CSSColor = require 'css-color'
 
 module.exports = class ColorHolder
 

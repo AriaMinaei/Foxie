@@ -31,6 +31,7 @@
     "method-chain": "~0.1.0",
     "raf-timing": "~0.3.0",
     "timing-function": "~0.1.0",
-    "css-filter": "~0.1.0"
+    "css-filter": "~0.1.0",
+    "css-color": "~0.1.0"
   }
 }
