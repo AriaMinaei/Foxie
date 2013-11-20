@@ -23,26 +23,6 @@ module.exports = class Timing_
 
 		return
 
-	_getMethodChain: ->
-
-		unless @constructor.__methodChain?
-
-			@constructor.__methodChain = new MethodChain
-
-			for key, fn of @
-
-				continue if key[0] is '_' or key is 'constructor'
-
-				continue unless fn instanceof Function
-
-				@constructor.__methodChain.addMethod key
-
-		@constructor.__methodChain
-
-	_getNewInterface: ->
-
-		@_getMethodChain().getInterface()
-
 	wait: (ms, rest...) ->
 
 		@_eventEnabledMethod rest, (cb) =>

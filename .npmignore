@@ -2,7 +2,9 @@
 .htaccess
 
 xeno/**
+scripts/pg/**
 node_modules
+pg
 
 -p
 

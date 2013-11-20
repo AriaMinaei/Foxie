@@ -3,32 +3,15 @@ timing = require './timing'
 Styles_ = require './el/mixin/Styles_'
 Timing_ = require './el/mixin/Timing_'
 lazyValues = require './utility/lazyValues'
-Interactions_ = require './el/mixin/Interactions_'
 {classic, object, array} = require 'utila'
 
 Timing = require 'raf-timing'
 
-module.exports = classic.mix Styles_, Chain_, Timing_, Interactions_, class Foxie
+module.exports = classic.mix Styles_, Chain_, Timing_, class Foxie
 
 	self = @
 
 	@Timing: Timing
-
-	@_defaultContainer: null
-
-	@_getDefaultContainer: ->
-
-		if @_defaultContainer?
-
-			return @_defaultContainer
-
-		else
-
-			return document.body
-
-	@_: (fn) ->
-
-		lazyValues.returnLazily fn
 
 	constructor: (@node) ->
 
@@ -47,18 +30,6 @@ module.exports = classic.mix Styles_, Chain_, Timing_, Interactions_, class Foxi
 		@_parent = null
 
 		@_children = []
-
-		timing.nextTick =>
-
-			if not @_beenAppended
-
-				if not @node.parentselfement? and @node.tagName isnt 'BODY'
-
-					@putIn self._getDefaultContainer()
-
-				else
-
-					@_beenAppended = yes
 
 	clone: (newself = Object.create @constructor::) ->
 
@@ -123,7 +94,7 @@ module.exports = classic.mix Styles_, Chain_, Timing_, Interactions_, class Foxi
 
 		@
 
-	putIn: (el = self._getDefaultContainer()) ->
+	putIn: (el) ->
 
 		if @_parent?
 
@@ -152,12 +123,6 @@ module.exports = classic.mix Styles_, Chain_, Timing_, Interactions_, class Foxi
 		@_parent = null
 
 		@_beenAppended = no
-
-		@
-
-	beDefaultContainer: ->
-
-		self._defaultContainer = @
 
 		@
 

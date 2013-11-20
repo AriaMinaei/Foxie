@@ -3,6 +3,8 @@
 
 scripts/js/**
 scripts/dist/**
+pg
+pg/**
 xeno/**
 node_modules
 

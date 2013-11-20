@@ -6,11 +6,13 @@
 	<script>
 	require.config({
 		packages: [{
-			name: 'Foxie',
-			location: '../../scripts/dist',
-			main: 'Foxie'
+			name: 'pg',
+			location: '../../scripts/pg',
+			main: 'pg'
 		}]
 	});
+	require(['pg']);
+
 	</script>
 
 	<!--<script src="../../scripts/dist/Foxie.js"></script>-->
@@ -28,112 +30,5 @@
 	</style>
 </head>
 <body>
-	<div id="ball"></div>
-	<script>
-		wait = function(t, f){
-			return setTimeout(f, t);
-		};
-
-		require(['Foxie'], function(Foxie){
-
-			// t = new Foxie.Timing();
-
-			// t.start();
-
-			// t.onNextFrame(function(){
-			// 	console.log('on');
-			// });
-
-			// t.afterNextFrame(function(){
-			// 	console.log('after');
-			// });
-
-			// t.beforeNextFrame(function(){
-			// 	console.log('before');
-			// });
-
-			// s = Date.now();
-
-			// t.wait(1200, function(){
-			// 	console.log(Date.now() - s);
-			// });
-
-			// before = Date.now();
-
-			// t.every(200, function(){
-			// 	var n = Date.now();
-			// 	console.log('every', n - before);
-			// 	before = n;
-			// });
-
-			// return
-
-			wait(100, function(){
-
-				getNewEl = function(){
-					node = document.createElement('div')
-					node.classList.add('ball')
-					document.body.appendChild(node);
-					return new Foxie(node);
-				}
-				els = []
-				for (i = 0; i != 60; i++) {
-					el = getNewEl()
-					el.i = i;
-
-					el.clip(0, 0, 0, 0);
-					els.push(el);
-				}
-
-				t = 500;
-
-				bringIn = function(){
-					for (i = 0; i < els.length; i++) {
-						bringElIn(els[i]);
-					}
-				};
-
-				takeOut = function(){
-					for (i = 0; i < els.length; i++) {
-						takeElOut(els[i]);
-					}
-				};
-
-				bringElIn = function(el){
-					el
-					.noTrans()
-					.setOpacity(0)
-					.trans(t)
-					.moveXTo(Math.random() * 600)
-					.moveYTo(el.i * 60 + 5)
-					// .setWidth(360)
-					// .setHeight(360)
-					.clip(0, 45, 45, 0)
-					.setOpacity(1)
-				};
-
-				takeElOut = function(el){
-					el
-					.noTrans()
-					.setOpacity(1)
-					.moveXTo(0)
-					.moveYTo(el.i * 60)
-				}
-
-				bringIn();
-
-				document.addEventListener('keydown', function(){
-					if (event.keyCode == 37) {
-						takeOut();
-					} else if (event.keyCode == 39) {
-						bringIn();
-					}
-				})
-			});
-
-
-
-		});
-	</script>
 </body>
 </html>
