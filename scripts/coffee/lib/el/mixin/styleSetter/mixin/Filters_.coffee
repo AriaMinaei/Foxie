@@ -1,4 +1,4 @@
-CSSFilter = require '../../../../visuals/Filter'
+CSSFilter = require 'css-filter'
 css = require '../../../../utility/css'
 
 module.exports = class Filters_
