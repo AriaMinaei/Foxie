@@ -15,7 +15,7 @@ module.exports = classic.mix Fill_, Transforms_, Layout_, class Transitioner
 
 		@_duration = 1000
 
-		@_startTime = 0
+		@_startTime = -1
 
 		Transitioner.__initMixinsFor @
 
