@@ -25,8 +25,6 @@ module.exports = classic.mix Styles_, Chain_, Timing_, class Foxie
 
 		self.__initMixinsFor @
 
-		@_beenAppended = no
-
 		@_parent = null
 
 		@_children = []
@@ -62,13 +60,11 @@ module.exports = classic.mix Styles_, Chain_, Timing_, class Foxie
 
 			parent = @node._parent ? @node.parentselfement ? null
 
-		newself._beenAppended = no
-
 		timing.afterFrame =>
 
-			if not newself._beenAppended
+			# if not newself._beenAppended
 
-				newself.putIn parent
+			# 	newself.putIn parent
 
 			return
 
@@ -110,8 +106,6 @@ module.exports = classic.mix Styles_, Chain_, Timing_, class Foxie
 			el.appendChild @node
 			@_parent = null
 
-		@_beenAppended = yes
-
 		@
 
 	takeOutOfParent: ->
@@ -121,8 +115,6 @@ module.exports = classic.mix Styles_, Chain_, Timing_, class Foxie
 			@_parent._notYourChildAnymore @
 
 		@_parent = null
-
-		@_beenAppended = no
 
 		@
 
