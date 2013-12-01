@@ -5,13 +5,13 @@ Timing_ = require './el/mixin/Timing_'
 lazyValues = require './utility/lazyValues'
 {classic, object, array} = require 'utila'
 
-Timing = require 'raf-timing'
+timing = require './timing'
 
 module.exports = classic.mix Styles_, Chain_, Timing_, class Foxie
 
 	self = @
 
-	@Timing: Timing
+	@timing: timing
 
 	constructor: (@node) ->
 
