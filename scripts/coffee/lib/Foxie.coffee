@@ -115,9 +115,7 @@ module.exports = classic.mix Styles_, Chain_, Timing_, class Foxie
 
 		@_children = []
 
-
-
-
+		@_customVars = {}
 
 	clone: (newself = Object.create @constructor::) ->
 
@@ -293,3 +291,19 @@ module.exports = classic.mix Styles_, Chain_, Timing_, class Foxie
 				null
 
 		return _interface
+
+	get: (name) ->
+
+		@_customVars[name]
+
+	set: (name, val) ->
+
+		@_customVars[name] = val
+
+		@
+
+	unset: (name) ->
+
+		delete @_customVars[name]
+
+		@
