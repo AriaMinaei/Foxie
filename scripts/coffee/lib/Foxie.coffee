@@ -81,6 +81,10 @@ module.exports = classic.mix Styles_, Chain_, Timing_, class Foxie
 
 	constructor: (node) ->
 
+		unless @ instanceof self
+
+			return new self node
+
 		if typeof node is 'string'
 
 			parts = self._parseTag node
