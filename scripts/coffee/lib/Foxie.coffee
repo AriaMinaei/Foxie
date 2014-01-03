@@ -307,3 +307,21 @@ module.exports = classic.mix Styles_, Chain_, Timing_, class Foxie
 		delete @_customVars[name]
 
 		@
+
+	attr: (name, val) ->
+
+		unless val?
+
+			return @node.getAttribute name
+
+		else
+
+			@node.setAttribute name, val
+
+		@
+
+	removeAttr: (name) ->
+
+		@node.removeAttribute name
+
+		@
