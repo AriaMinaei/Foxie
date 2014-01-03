@@ -18,7 +18,7 @@ module.exports = classic.mix Styles_, Chain_, Timing_, class Foxie
 	@_parseTag: (k) ->
 
 		# validate
-		if not k.match(/^[a-zA-Z0-9\#\-\_\.\[\]\"\'\=\,\s]+$/) or k.match(/^[0-9]+/)
+		if not k.match(/^[a-zA-Z0-9\#\-\_\.\[\]\"\'\=\,\s\:]+$/) or k.match(/^[0-9]+/)
 
 			throw Error "cannot parse tag `#{k}`"
 
@@ -29,6 +29,14 @@ module.exports = classic.mix Styles_, Chain_, Timing_, class Foxie
 			name: ''
 
 			attribs: attribs
+
+			ns: no
+
+		if k.match /^svg\:/
+
+			parts.ns = 'http://www.w3.org/2000/svg'
+
+			k = k.substr 4, k.length
 
 		# tag name
 		if m = k.match /^([^\.#]+)/
@@ -93,7 +101,13 @@ module.exports = classic.mix Styles_, Chain_, Timing_, class Foxie
 
 				parts.name = 'div'
 
-			node = document.createElement parts.name
+			if parts.ns
+
+				node = document.createElementNS parts.ns, parts.name
+
+			else
+
+				node = document.createElement parts.name
 
 			for name, val of parts.attribs
 
