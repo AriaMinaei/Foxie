@@ -270,4 +270,15 @@ for methodName, method of StyleSetter.prototype
 
 			throw Error "Methods with more than 5 args are not supported."
 
-Styles
+# let's just expose these temporarily, till we do the rewrite
+Styles::getMovement = ->
+
+	@_styleSetter._transformer.movement()
+
+Styles::getRotation = ->
+
+	@_styleSetter._transformer.rotation()
+
+Styles::getScale = ->
+
+	@_styleSetter._transformer.getScale()
