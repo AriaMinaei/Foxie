@@ -339,3 +339,13 @@ module.exports = classic.mix Styles_, Chain_, Timing_, class Foxie
 		@node.removeAttribute name
 
 		@
+
+	innerHTML: (val) ->
+
+		unless val?
+
+			return @node.innerHTML
+
+		@node.innerHTML = val
+
+		@
