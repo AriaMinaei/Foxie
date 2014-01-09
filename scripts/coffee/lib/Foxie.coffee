@@ -349,3 +349,15 @@ module.exports = classic.mix Styles_, Chain_, Timing_, class Foxie
 		@node.innerHTML = val
 
 		@
+
+	computedStyle: (prop) ->
+
+		comp = getComputedStyle @node
+
+		if prop?
+
+			comp[prop]
+
+		else
+
+			comp
