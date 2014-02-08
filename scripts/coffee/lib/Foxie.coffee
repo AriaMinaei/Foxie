@@ -205,7 +205,13 @@ module.exports = classic.mix Styles_, Chain_, Timing_, class Foxie
 
 		else
 
-			el.appendChild @node
+			node = el
+
+			if node.node?
+
+				node = node.node
+
+			node.appendChild @node
 			@_parent = null
 
 		@
