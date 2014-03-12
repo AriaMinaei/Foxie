@@ -1,4 +1,5 @@
 Transformation = require 'transformation'
+cssify = require 'transformation/scripts/js/lib/cssify'
 css = require '../../../../utility/css'
 
 module.exports = class Transforms_
@@ -41,7 +42,7 @@ module.exports = class Transforms_
 
 	_actuallyUpdateTransforms: ->
 
-		css.setTransform @node, @_transformer.toPlainCss()
+		css.setTransform @node, cssify.convert @_transformer
 
 		@
 

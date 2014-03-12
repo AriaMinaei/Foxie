@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "utila": "~0.2.0",
-    "transformation": "~0.1.0",
+    "transformation": "~0.2.0-beta.2",
     "method-chain": "~0.1.0",
     "raf-timing": "~0.3.0",
     "timing-function": "~0.1.0",

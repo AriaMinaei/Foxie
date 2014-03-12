@@ -26,6 +26,7 @@ module.exports = classic.mix Fill_, Transforms_, Layout_, class Transitioner
 			transformScale: no
 			transformPerspective: no
 			transformLocalMovement: no
+			transformRotate3d: no
 			opacity: no
 			width: no
 			height: no
@@ -59,6 +60,7 @@ module.exports = classic.mix Fill_, Transforms_, Layout_, class Transitioner
 			transformScale: no
 			transformPerspective: no
 			transformLocalMovement: no
+			transformRotate3d: no
 			width: no
 			height: no
 			opacity: no

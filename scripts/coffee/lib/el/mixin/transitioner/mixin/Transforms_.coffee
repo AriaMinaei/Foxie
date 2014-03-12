@@ -18,59 +18,25 @@ module.exports = class Transforms_
 
 	_adjustFromValuesForTransforms: ->
 
-		@_fromMatrix[0] = @_currentMatrix[0]
-		@_fromMatrix[1] = @_currentMatrix[1]
-		@_fromMatrix[2] = @_currentMatrix[2]
-
-		@_fromMatrix[3] = @_currentMatrix[3]
-		@_fromMatrix[4] = @_currentMatrix[4]
-		@_fromMatrix[5] = @_currentMatrix[5]
-
-		@_fromMatrix[6] = @_currentMatrix[6]
-
-		@_fromMatrix[7] = @_currentMatrix[7]
-		@_fromMatrix[8] = @_currentMatrix[8]
-		@_fromMatrix[9] = @_currentMatrix[9]
-
-		@_fromMatrix[10] = @_currentMatrix[10]
-		@_fromMatrix[11] = @_currentMatrix[11]
-		@_fromMatrix[12] = @_currentMatrix[12]
-
-		@_fromMatrix[13] = @_currentMatrix[13]
-		@_fromMatrix[14] = @_currentMatrix[14]
-		@_fromMatrix[15] = @_currentMatrix[15]
+		@_fromMatrix.set @_currentMatrix
 
 		@
 
 	_disableTransitionForTransforms: ->
 
 		@_needsUpdate.transformMovement = no
-		@_toMatrix[0] = @_currentMatrix[0]
-		@_toMatrix[1] = @_currentMatrix[1]
-		@_toMatrix[2] = @_currentMatrix[2]
 
 		@_needsUpdate.transformScale = no
-		@_toMatrix[3] = @_currentMatrix[3]
-		@_toMatrix[4] = @_currentMatrix[4]
-		@_toMatrix[5] = @_currentMatrix[5]
 
 		@_needsUpdate.transformPerspective = no
-		@_toMatrix[6] = @_currentMatrix[6]
 
 		@_needsUpdate.transformRotation = no
-		@_toMatrix[7] = @_currentMatrix[7]
-		@_toMatrix[8] = @_currentMatrix[8]
-		@_toMatrix[9] = @_currentMatrix[9]
 
 		@_needsUpdate.transformLocalMovement = no
-		@_toMatrix[10] = @_currentMatrix[10]
-		@_toMatrix[11] = @_currentMatrix[11]
-		@_toMatrix[12] = @_currentMatrix[12]
 
 		@_needsUpdate.transformLocalRotation = no
-		@_toMatrix[13] = @_currentMatrix[13]
-		@_toMatrix[14] = @_currentMatrix[14]
-		@_toMatrix[15] = @_currentMatrix[15]
+
+		@_toMatrix.set @_currentMatrix
 
 		@
 
@@ -99,6 +65,10 @@ module.exports = class Transforms_
 		if @_needsUpdate.transformLocalRotation
 
 			@_updateLocalRotation progress
+
+		if @_needsUpdate.transformRotate3d
+
+			@_updateRotate3d progress
 
 		return
 
@@ -791,6 +761,53 @@ module.exports = class Transforms_
 		do @_reportUpdateForLocalRotation
 
 		@_toMatrix[15] = @_currentMatrix[15] + z
+
+		do @_update
+
+		@
+
+	_updateRotate3d: (progress) ->
+
+		@_styleSetter.rotate3d (
+				@_fromMatrix[16] +
+				((@_toMatrix[16] - @_fromMatrix[16]) * progress)
+			),
+			(
+				@_fromMatrix[17] +
+				((@_toMatrix[17] - @_fromMatrix[17]) * progress)
+			),
+			(
+				@_fromMatrix[18] +
+				((@_toMatrix[18] - @_fromMatrix[18]) * progress)
+			),
+			(
+				@_fromMatrix[19] +
+				((@_toMatrix[19] - @_fromMatrix[19]) * progress)
+			)
+
+		null
+
+	_reportUpdateForRotate3d: ->
+
+		return if @_needsUpdate.transformRotate3d
+
+		@_needsUpdate.transformRotate3d = yes
+
+		@_toMatrix[16] = @_currentMatrix[16]
+		@_toMatrix[17] = @_currentMatrix[17]
+		@_toMatrix[18] = @_currentMatrix[18]
+		@_toMatrix[19] = @_currentMatrix[19]
+
+		return
+
+	rotate3d: (x, y, z, amount) ->
+
+		do @_reportUpdateForRotate3d
+
+		@_toMatrix[16] = x
+		@_toMatrix[17] = y
+		@_toMatrix[18] = z
+		@_toMatrix[19] = amount
 
 		do @_update
 
