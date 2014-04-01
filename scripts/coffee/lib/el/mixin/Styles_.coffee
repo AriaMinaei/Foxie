@@ -273,11 +273,11 @@ for methodName, method of StyleSetter.prototype
 # let's just expose these temporarily, till we do the rewrite
 Styles::getMovement = ->
 
-	@_styleSetter._transformer.movement()
+	@_styleSetter._transformer.getMovement()
 
 Styles::getRotation = ->
 
-	@_styleSetter._transformer.rotation()
+	@_styleSetter._transformer.getRotation()
 
 Styles::getScale = ->
 
