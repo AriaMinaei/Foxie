@@ -1,6 +1,6 @@
 {
   "name": "foxie",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "description": "DOM nodes gone bendie",
   "main": "scripts/js/lib/Foxie.js",
   "scripts": {
