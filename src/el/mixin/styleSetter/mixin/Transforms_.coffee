@@ -1,5 +1,5 @@
-Transformation = require 'transformation'
-cssify = require 'transformation/scripts/js/lib/cssify'
+Transformation = require 'Transformation'
+cssify = require 'Transformation/scripts/js/lib/cssify'
 css = require '../../../../utility/css'
 
 module.exports = class Transforms_

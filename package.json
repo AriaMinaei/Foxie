@@ -1,14 +1,11 @@
 {
   "name": "foxie",
-  "version": "0.1.16",
+  "version": "0.2.0",
   "description": "DOM nodes gone bendie",
-  "main": "scripts/js/lib/Foxie.js",
+  "main": "./build/Foxie.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublish": "node ./node_modules/coffee-script/bin/cake build"
-  },
-  "devDependencies": {
-    "coffee-script": "~1.6.3"
+    "build": "node_modules/webpack/bin/webpack.js --optimize-dedupe --optimize-occurrence-order --optimize-minimize",
+    "watch": "node_modules/webpack/bin/webpack.js --watch"
   },
   "repository": {
     "type": "git",
@@ -21,6 +18,13 @@
     "css"
   ],
   "author": "Aria Minaei",
+  "contributors": [
+    {
+      "name": "Pouria Maleki",
+      "email": "dev.maleki@gmail.com",
+      "url": "github.com/pouriaMaleki"
+    }
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/AriaMinaei/Foxie/issues"
@@ -32,6 +36,9 @@
     "raf-timing": "~0.3.0",
     "timing-function": "~0.1.0",
     "css-filter": "~0.1.0",
-    "css-color": "~0.1.0"
+    "css-color": "~0.1.0",
+    "coffee-loader": "^0.7.2",
+    "coffee-script": "^1.9.3",
+    "webpack": "^1.10.5"
   }
 }

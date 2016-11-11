@@ -12,3 +12,12 @@ node_modules
 
 npm-debug.log
 !*.gitkeep
+
+CVS
+.hg
+.lock-wscript
+.wafpickle-N
+*.swp
+.DS_Store
+._*
+npm-debug.log
